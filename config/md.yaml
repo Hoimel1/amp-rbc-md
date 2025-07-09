@@ -1,0 +1,10 @@
+integrator: md
+nsteps: 0  # Wird von gen_mdp.py überschrieben
+dt_fs: 20
+ref_t: 310
+pressure_bar: 1
+barostat: parrinello-rahman
+ewald_rtol: 1e-5
+rlist_nm: 1.2
+coulombtype: PME
+constraints: h-bonds 

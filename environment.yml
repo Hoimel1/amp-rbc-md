@@ -1,0 +1,23 @@
+name: amp-rbc-md
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - biopython
+  - click
+  - pyyaml
+  - pandas
+  - tqdm
+  - matplotlib
+  - mlflow
+  - moviepy
+  - rich
+  - pytest
+  - pytest-cov
+  - black
+  - flake8
+  - mypy
+  - isort
+  - types-PyYAML 

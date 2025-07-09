@@ -1,0 +1,36 @@
+import os
+import yaml
+from hashlib import sha1
+from pathlib import Path
+
+configfile: "config/md.yaml"
+
+# Lade benutzerdefinierte Hashliste
+CONFIG = yaml.safe_load(Path("config/system.yaml").read_text())
+
+rule all:
+    input:
+        expand(
+            "results/{hash}/report.csv",
+            hash=lambda wildcards: CONFIG.get("hash_list", [])
+        )
+
+rule step1_prepare:
+    input:
+        fasta="{{seq}}.fasta"
+    output:
+        pdb="intermediate/{hash}/{rep}.pdb"
+    shell:
+        "amp-rbc-md run_sim --seq $(cat {input.fasta}) --dry-run"
+
+rule step5_gmx:
+    wildcard_constraints:
+        rep="\d+"
+    input:
+        system_gro="intermediate/{{hash}}/{{rep}}.gro",
+        top="intermediate/{{hash}}/{{rep}}.top",
+        mdp_files=expand("mdp_templates/{{phase}}.mdp", phase=["minim", "nvt", "npt", "prod"]),
+    params:
+        gpu=lambda wildcards: os.getenv("GMX_GPU", "0"),
+    shell:
+        "gmx mdrun -deffnm {{wildcards.rep}} -gpu_id {params.gpu}" 

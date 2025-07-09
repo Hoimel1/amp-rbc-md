@@ -1,0 +1,34 @@
+### Python ###
+__pycache__/
+*.py[cod]
+
+### Conda ###
+.env/
+.conda/
+
+### Build ###
+build/
+dist/
+*.egg-info/
+
+### GROMACS artefacts ###
+*.gro
+*.xtc
+*.trr
+*.tpr
+*.edr
+*.log
+
+### Caches ###
+.cache/
+
+### mlflow ###
+mlruns/
+
+### Images & Videos ###
+*.png
+*.mp4
+
+### IDEs ###
+.vscode/
+.idea/ 

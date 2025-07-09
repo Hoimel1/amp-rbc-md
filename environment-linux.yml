@@ -1,0 +1,25 @@
+name: amp-rbc-md
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - gmxapi
+  - gromacs=2024
+  - martinize2
+  - insane
+  - biopython
+  - click
+  - pyyaml
+  - pandas
+  - tqdm
+  - matplotlib
+  - mlflow
+  - moviepy
+  - rich
+  - pytest
+  - pytest-cov
+  - black
+  - flake8
+  - mypy
+  - isort 

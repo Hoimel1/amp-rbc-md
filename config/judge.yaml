@@ -1,0 +1,15 @@
+delta_g:
+  threshold_kcal_per_mol: -3.0
+  ci_width_kcal_per_mol: 1.0
+
+thinning:
+  threshold_nm: 0.5
+
+pore:
+  min_water: 1
+  z_cutoff_nm: 0.5
+  min_duration_ns: 5
+
+labels:
+  pass: ok
+  fail: tox 

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amp-rbc-md"
+version = "0.1.0"
+description = "Batch-fähige Martini-3-RBC Simulation"
+requires-python = "~=3.10"
+authors = [{name = "amp-rbc-md Dev Team"}]
+license = {text = "MIT"}
+
+[project.scripts]
+amp-rbc-md = "cli.run_sim:run_sim" 

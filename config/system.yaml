@@ -1,0 +1,17 @@
+default:
+  lipids:
+    - name: POPC
+      ratio: 0.6
+    - name: CHOL
+      ratio: 0.4
+  d0: 2.5
+
+chol_high:
+  lipids:
+    - name: POPC
+      ratio: 0.3
+    - name: CHOL
+      ratio: 0.7
+  d0: 2.0
+
+hash_list: [] 
