@@ -30,6 +30,7 @@ def martinize(
         "-ff", "martini3001",
         "-from", "charmm",
         "-nt",  # Neutral termini to avoid modification issues
+        "-maxwarn", "100",  # Ignore warnings about missing atoms in CA-only structure
     ]
     if elastic:
         cmd.append("-elastic")
