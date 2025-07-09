@@ -28,9 +28,8 @@ def martinize(
         "-x",
         str(gro_path),
         "-ff", "martini3001",
-        "-from", "charmm",
-        "-nt",  # Neutral termini to avoid modification issues
-        "-maxwarn", "100",  # Ignore warnings about missing atoms in CA-only structure
+        "-p", "backbone",  # Positionsrestraints tauglich, nötig für spätere Equilibration
+        "-dssp",  # Sekundärstruktur automatisch bestimmen (benötigt dssp oder mdtraj)
     ]
     if elastic:
         cmd.append("-elastic")
