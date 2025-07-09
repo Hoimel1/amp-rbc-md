@@ -31,17 +31,17 @@ class GromacsRunner:  # noqa: D101
 
     def _cmd(self, *args: str) -> Sequence[str]:
         base = ["gmx"]
-        # GPU-Flag nur verwenden, wenn tatsächlich GPU verfügbar ist
-        if self.gpu_id and any(arg.startswith("mdrun") for arg in args):
-            try:
-                # Teste ob GPU-Flag verfügbar ist
-                result = subprocess.run(["gmx", "mdrun", "-h"], capture_output=True, text=True, timeout=10)
-                if "-gpu" in result.stdout:
-                    base += ["-gpu", self.gpu_id]
-                else:
-                    LOGGER.info("GPU-Flag nicht verfügbar, verwende CPU-Version")
-            except Exception as e:
-                LOGGER.info("GPU-Test fehlgeschlagen (%s), verwende CPU-Version", e)
+        # GPU-Flag komplett deaktiviert für CPU-Instanzen
+        # if self.gpu_id and any(arg.startswith("mdrun") for arg in args):
+        #     try:
+        #         # Teste ob GPU-Flag verfügbar ist
+        #         result = subprocess.run(["gmx", "mdrun", "-h"], capture_output=True, text=True, timeout=10)
+        #         if "-gpu" in result.stdout:
+        #             base += ["-gpu", self.gpu_id]
+        #         else:
+        #             LOGGER.info("GPU-Flag nicht verfügbar, verwende CPU-Version")
+        #     except Exception as e:
+        #         LOGGER.info("GPU-Test fehlgeschlagen (%s), verwende CPU-Version", e)
         return [*base, *args]
 
     # ---------------------------------------------------------------------
