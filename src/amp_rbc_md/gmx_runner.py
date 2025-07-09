@@ -80,11 +80,31 @@ class GromacsRunner:  # noqa: D101
         )
 
         try:
-            subprocess.run(cmd, check=True, cwd=self.work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except (FileNotFoundError, subprocess.CalledProcessError) as err:
-            LOGGER.warning("grompp fehlgeschlagen (%s), erstelle Dummy-TPR.", err)
+            LOGGER.info("Führe grompp aus: %s", " ".join(cmd))
+            result = subprocess.run(
+                cmd, 
+                cwd=self.work_dir, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
+            LOGGER.info("grompp erfolgreich ausgeführt")
+            return out_tpr
+        except subprocess.CalledProcessError as err:
+            LOGGER.error("grompp fehlgeschlagen: %s", err)
+            if err.stdout:
+                LOGGER.error("grompp stdout: %s", err.stdout)
+            if err.stderr:
+                LOGGER.error("grompp stderr: %s", err.stderr)
+            LOGGER.warning("Erstelle Dummy-TPR für Pipeline-Kontinuität")
             out_tpr.write_text("stub tpr")
-        return out_tpr
+            return out_tpr
+        except FileNotFoundError as err:
+            LOGGER.error("gmx nicht gefunden: %s", err)
+            LOGGER.warning("Erstelle Dummy-TPR für Pipeline-Kontinuität")
+            out_tpr.write_text("stub tpr")
+            return out_tpr
 
     def run(self, tpr_file: str | Path) -> Path:  # noqa: D401
         """Starte GROMACS-MD-Lauf und logge via mlflow."""
