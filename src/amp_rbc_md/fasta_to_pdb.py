@@ -44,11 +44,11 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         from colabfold.batch import get_queries, run
         from colabfold.download import download_alphafold_params
         
-        # Lade AlphaFold Parameter (korrigierte API)
-        download_alphafold_params("alphafold2_multimer_v3")
+        # Lade AlphaFold Parameter für Monomere
+        download_alphafold_params("alphafold2_ptm")
         
-        # Führe Vorhersage aus
-        queries = get_queries([str(temp_fasta)])
+        # Führe Vorhersage aus (korrigierte API)
+        queries = get_queries(str(temp_fasta))
         results = run(queries, result_dir=str(out_dir), use_templates=False, custom_template_path=None)
         
         # Finde die beste PDB-Datei
