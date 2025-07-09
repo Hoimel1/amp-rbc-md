@@ -27,14 +27,14 @@ def detect_pore(
     """Detektiere transienten Porenwassereintritt.
 
     Heuristik: ≥1 Wasser innerhalb |z| ≤ z_cutoff für mindestens min_duration.
-    Bei fehlender MDAnalysis oder Dry-Run liefert die Funktion ein deterministisches
-    Ergebnis basierend auf Hash des Dateinamens, damit Tests reproduzierbar sind.
     """
     traj = Path(traj)
 
-    if mda is None or not traj.exists():
-        LOGGER.warning("MDAnalysis nicht verfügbar oder Traj fehlt – Pore-Detection dummy.")
-        return hash(traj.name) % 5 == 0  # 20 % Chance
+    if mda is None:
+        raise RuntimeError("MDAnalysis ist nicht verfügbar. Bitte installieren Sie es mit: pip install MDAnalysis")
+
+    if not traj.exists():
+        raise FileNotFoundError(f"Trajektorie {traj} existiert nicht")
 
     if gro is None:
         gro_guess = traj.with_suffix(".gro")
