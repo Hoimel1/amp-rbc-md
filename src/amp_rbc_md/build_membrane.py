@@ -15,22 +15,29 @@ def build(profile: str, peptide_gro: str | Path, out_dir: str | Path) -> Path:
     """Baue eine Lipidmembran mithilfe von insane.py oder Dummy-Version."""
     out_dir = ensure_dir(out_dir)
     system_gro = Path(out_dir) / "membrane.gro"
-    lipids = CONFIG.get(profile, CONFIG["default"])  # type: ignore[index]
-
-    cmd: Sequence[str] = [
+    
+    # Lade Profil-Konfiguration
+    profile_config = CONFIG.get(profile, CONFIG["default"])
+    lipids = profile_config.get("lipids", [])
+    
+    # Baue insane-Kommando
+    cmd: list[str] = [
         "insane",
-        "-f",
-        str(peptide_gro),
-        "-o",
-        str(system_gro),
-        "-l", "POPC",
-        "-l", "CHOL",
-        "-u", "W",
-        "-sol", "W",
-        "-x", "10.0",
-        "-y", "10.0",
-        "-z", "10.0",
+        "-f", str(peptide_gro),
+        "-o", str(system_gro),
     ]
+    
+    # Füge Lipide hinzu
+    for lipid in lipids:
+        cmd.extend(["-l", lipid["name"]])
+    
+    # Füge Wasser und Box-Dimensionen hinzu
+    cmd.extend([
+        "-sol", "W",  # Solvent (Wasser)
+        "-x", "10.0",
+        "-y", "10.0", 
+        "-z", "10.0",
+    ])
 
     try:
         LOGGER.info("Baue Membran mit insane.py: %s", " ".join(cmd))
