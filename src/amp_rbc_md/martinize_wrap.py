@@ -28,8 +28,9 @@ def martinize(
         "-x",
         str(gro_path),
         "-ff", "martini3001",
-        "-elastic" if elastic else "",
     ]
+    if elastic:
+        cmd.append("-elastic")
     try:
         LOGGER.info("Führe martinize2 aus: %s", " ".join(cmd))
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
