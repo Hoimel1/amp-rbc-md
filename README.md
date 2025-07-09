@@ -43,3 +43,24 @@ export MLFLOW_TRACKING_URI=file:$(pwd)/mlruns
 ## Projekt-Layout
 
 Siehe Spezifikation in Issue #1 oder die Ordnerstruktur dieses Repos.
+
+## Neue CLI-Features (v0.2)
+
+| Flag | Beschreibung |
+|------|--------------|
+| `--resume` | Überspringt bereits berechnete Replika (erkennt `repX/report.csv`). |
+| `-j / --workers` | Parallele Ausführung der Replika (ThreadPool). |
+
+Beispiel:
+
+```bash
+amp-rbc-md run_sim -f examples/batch.fasta --n-replica 3 -j 4 --resume
+```
+
+## Tutorials
+
+1. `docs/TUTORIAL.md` – Schritt-für-Schritt-Anleitung für einen vollständigen Lauf (CPU-Dummy vs. GPU-Real).  
+2. `notebooks/quickstart.ipynb` – interaktiver Workflow (mlflow Tracking & Analyse-Plots).  
+3. Wiki-Seiten für HPC-Deployment (Slurm-Profil, Snakemake-Cluster).
+
+👉 Nach dem Klonen einfach `open docs/TUTORIAL.md` lesen und loslegen!

@@ -23,3 +23,7 @@ dependencies:
   - flake8
   - mypy
   - isort 
+  - pip
+  - pip:
+      - martinize2==2.2.0
+      - insane 

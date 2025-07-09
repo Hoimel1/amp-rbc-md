@@ -105,7 +105,7 @@ def run_sim(
                 current_gro = phase_gro
 
         metrics = analyse.analyse_trajectory(trr, rep_dir)
-        verdict = judge.judge_metrics(**metrics)
+        verdict = judge.judge_metrics(**{k: metrics[k] for k in ("delta_g", "ci95", "thinning")})
         row = (seq_hash, rep, *metrics.values(), verdict.label, verdict.confidence)
         (rep_dir / "report.csv").write_text(
             "hash,rep,delta_g,ci95,thinning,pore,label,conf\n" + ",".join(map(str, row)) + "\n"

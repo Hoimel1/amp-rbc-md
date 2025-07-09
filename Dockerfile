@@ -25,7 +25,8 @@ ENV PATH=$CONDA_DIR/envs/amp-rbc-md/bin:$PATH
 # Projektcode
 WORKDIR /workspace
 COPY . /workspace
-RUN pip install -e ./
+RUN pip install -e ./ && \
+    pip install martinize2==2.2.0 insane
 
 # Standardbefehl
 ENTRYPOINT ["amp-rbc-md"]
