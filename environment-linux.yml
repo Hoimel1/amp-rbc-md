@@ -23,7 +23,8 @@ dependencies:
   - pip
   - pip:
       - martinize2==2.2.0
-      - insane
-      - fair-esm
-      - torch
+      # GPU-abhängige Python-Pakete
+      - fair-esm[esmfold]>=0.8  # enthält esmfold_v1 + OpenFold-Bridge (CUDA erforderlich)
+      - openfold @ git+https://github.com/aqlaboratory/openfold.git@main  # benötigt nvcc
+      - torch==2.3.0  # wird vom openfold-Build via pip wheel mit CUDA-Unterstützung installiert
       - omegaconf 
