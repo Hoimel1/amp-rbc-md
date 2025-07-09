@@ -4,10 +4,7 @@ channels:
   - bioconda
 dependencies:
   - python=3.10
-  - gmxapi
   - gromacs=2024
-  - martinize2
-  - insane
   - biopython
   - click
   - pyyaml
