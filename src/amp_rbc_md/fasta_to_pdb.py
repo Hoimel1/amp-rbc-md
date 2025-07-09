@@ -49,7 +49,14 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         
         # Führe Vorhersage aus (korrigierte API)
         queries = get_queries(str(temp_fasta))
-        results = run(queries, result_dir=str(out_dir), use_templates=False, custom_template_path=None)
+        results = run(
+            queries, 
+            result_dir=str(out_dir), 
+            num_models=1,  # Nur ein Modell für schnelle Vorhersage
+            is_complex=False,  # Monomer, kein Komplex
+            use_templates=False, 
+            custom_template_path=None
+        )
         
         # Finde die beste PDB-Datei
         pdb_files = list(out_dir.glob("*.pdb"))
