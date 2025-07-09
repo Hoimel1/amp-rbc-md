@@ -18,7 +18,7 @@ def build(profile: str, peptide_gro: str | Path, out_dir: str | Path) -> Path:
     lipids = CONFIG.get(profile, CONFIG["default"])  # type: ignore[index]
 
     cmd: Sequence[str] = [
-        "insane.py",
+        "insane",
         "-f",
         str(peptide_gro),
         "-o",

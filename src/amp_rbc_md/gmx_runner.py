@@ -32,7 +32,7 @@ class GromacsRunner:  # noqa: D101
     def _cmd(self, *args: str) -> Sequence[str]:
         base = ["gmx"]
         if self.gpu_id and any(arg.startswith("mdrun") for arg in args):
-            base += ["-gpu_id", self.gpu_id]
+            base += ["-gpu", self.gpu_id]
         return [*base, *args]
 
     # ---------------------------------------------------------------------
