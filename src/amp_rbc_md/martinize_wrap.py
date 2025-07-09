@@ -29,6 +29,7 @@ def martinize(
         str(gro_path),
         "-ff", "martini3001",
         "-from", "charmm",
+        "-nt",  # Neutral termini to avoid modification issues
     ]
     if elastic:
         cmd.append("-elastic")
