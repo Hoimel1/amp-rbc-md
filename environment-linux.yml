@@ -25,4 +25,5 @@ dependencies:
       - martinize2==2.2.0
       - insane
       - fair-esm
-      - torch 
+      - torch
+      - omegaconf 
