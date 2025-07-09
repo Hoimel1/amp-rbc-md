@@ -35,8 +35,15 @@ def martinize(
         LOGGER.info("Führe martinize2 aus: %s", " ".join(cmd))
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         LOGGER.info("martinize2 erfolgreich ausgeführt")
-    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+    except subprocess.CalledProcessError as e:
         LOGGER.error("martinize2 fehlgeschlagen: %s", e)
+        if e.stderr:
+            LOGGER.error("martinize2 stderr: %s", e.stderr)
+        if e.stdout:
+            LOGGER.error("martinize2 stdout: %s", e.stdout)
+        raise RuntimeError(f"martinize2 konnte nicht ausgeführt werden: {e}")
+    except FileNotFoundError as e:
+        LOGGER.error("martinize2 nicht gefunden: %s", e)
         raise RuntimeError(f"martinize2 konnte nicht ausgeführt werden: {e}")
 
     return gro_path, top_path
