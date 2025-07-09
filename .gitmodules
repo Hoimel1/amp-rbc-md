@@ -1,0 +1,3 @@
+[submodule "martinize2"]
+	path = martinize2
+	url = https://github.com/marrink-lab/vermouth-martinize.git
