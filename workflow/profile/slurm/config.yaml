@@ -1,0 +1,2 @@
+cluster: "sbatch --time={resources.time} --mem={resources.mem_mb} --cpus-per-task={threads}"
+jobname: "{rule}-{wildcards}" 

@@ -1,0 +1,50 @@
+include          = -I../top
+integrator       = sd
+nsteps           = 2500000  ; 50 ns @ 20 fs
+; Output control
+nstxout-compressed = 5000
+nstenergy        = 1000
+nstlog           = 1000
+; Bond parameters
+continuation     = yes
+constraint_algorithm = lincs
+constraints      = h-bonds
+lincs_iter       = 1
+lincs_order      = 4
+; Neighborsearching
+cutoff-scheme    = Verlet
+ns_type          = grid
+nstlist          = 20
+rlist            = 1.2
+coulombtype      = PME
+rcoulomb         = 1.2
+rvdw             = 1.2
+;
+tcoupl           = v-rescale
+tc-grps          = System
+	tau-t           = 0.1
+	ref-t           = 310
+pcoupl           = parrinello-rahman
+pcoupltype       = semiisotropic
+	tau-p           = 12.0
+	ref-p           = 1.0 1.0
+	compressibility = 4.5e-5 4.5e-5
+pbc              = xyz
+
+; Pull code – Platzhalter wird ersetzt
+pull            = yes
+pull_geometry   = position
+pull_vec1       = 0 0 1
+pull_dim        = N N Y
+pull_start      = yes
+pull_ngroups    = 1
+pull_ncoords    = 1
+pull_group1_name = PEPTIDE
+pull_group2_name = MEMB
+pull_coord1_type = umbrella
+pull_coord1_geometry = distance
+pull_coord1_groups = 1 2
+pull_coord1_dim = N N Y
+pull_coord1_rate = 0.0
+pull_coord1_k      = {k}
+pull_coord1_init   = {z0} 

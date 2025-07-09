@@ -34,3 +34,97 @@ rule step5_gmx:
         gpu=lambda wildcards: os.getenv("GMX_GPU", "0"),
     shell:
         "gmx mdrun -deffnm {{wildcards.rep}} -gpu_id {params.gpu}" 
+
+rule grompp:
+    input:
+        mdp="mdp_templates/{phase}.mdp",
+        gro="intermediate/{{hash}}/{{rep}}.gro",
+        top="intermediate/{{hash}}/{{rep}}.top",
+    output:
+        tpr="intermediate/{{hash}}/{{rep}}/{phase}.tpr",
+    shell:
+        "gmx grompp -f {input.mdp} -c {input.gro} -p {input.top} -o {output.tpr}"
+
+
+rule mdrun:
+    input:
+        tpr="intermediate/{{hash}}/{{rep}}/{phase}.tpr",
+    output:
+        trr="intermediate/{{hash}}/{{rep}}/{phase}.trr",
+        gro="intermediate/{{hash}}/{{rep}}/{phase}.gro",
+    params:
+        gpu=lambda wildcards: os.getenv("GMX_GPU", "0"),
+    shell:
+        "gmx mdrun -s {input.tpr} -deffnm {wildcards.phase} -gpu_id {params.gpu}" 
+
+# -----------------------------------------------------------------------------
+# Dynamische Variablen
+# -----------------------------------------------------------------------------
+WINDOWS = range(16)
+PHASES = ["minim", "nvt", "npt", "prod"]
+
+# -----------------------------------------------------------------------------
+# Regeln: Phasen-Minim→Prod
+# -----------------------------------------------------------------------------
+rule grompp_phase:
+    input:
+        mdp="mdp_templates/{phase}.mdp",
+        gro="intermediate/{{hash}}/{{rep}}/{prev}.gro",
+        top="intermediate/{{hash}}/{{rep}}.top",
+    output:
+        tpr="intermediate/{{hash}}/{{rep}}/{phase}.tpr",
+    params:
+        prev=lambda wildcards: "system" if wildcards.phase == "minim" else PHASES[PHASES.index(wildcards.phase)-1],
+    run:
+        shell("gmx grompp -f {input.mdp} -c {input.gro} -p {input.top} -o {output.tpr}")
+
+rule mdrun_phase:
+    input:
+        tpr="intermediate/{{hash}}/{{rep}}/{phase}.tpr",
+    output:
+        trr="intermediate/{{hash}}/{{rep}}/{phase}.trr",
+        gro="intermediate/{{hash}}/{{rep}}/{phase}.gro",
+    params:
+        gpu=lambda wildcards: os.getenv("GMX_GPU", "0"),
+    shell:
+        "gmx mdrun -s {input.tpr} -deffnm {wildcards.phase} -gpu_id {params.gpu}"
+
+# -----------------------------------------------------------------------------
+# Umbrella-Sampling Fenster
+# -----------------------------------------------------------------------------
+rule pull_grompp:
+    input:
+        mdp="intermediate/{{hash}}/{{rep}}/umbrella/pull_{win}.mdp",
+        gro="intermediate/{{hash}}/{{rep}}/prod.gro",
+        top="intermediate/{{hash}}/{{rep}}.top",
+    output:
+        tpr="intermediate/{{hash}}/{{rep}}/umbrella/{win}.tpr",
+    shell:
+        "gmx grompp -f {input.mdp} -c {input.gro} -p {input.top} -o {output.tpr}"
+
+rule pull_mdrun:
+    input:
+        tpr="intermediate/{{hash}}/{{rep}}/umbrella/{win}.tpr",
+    output:
+        xvg="intermediate/{{hash}}/{{rep}}/umbrella/{win}.pullf.xvg",
+    params:
+        gpu=lambda wildcards: os.getenv("GMX_GPU", "0"),
+    shell:
+        "gmx mdrun -s {input.tpr} -deffnm {wildcards.win} -gpu_id {params.gpu}"
+
+# -----------------------------------------------------------------------------
+# WHAM
+# -----------------------------------------------------------------------------
+rule wham:
+    input:
+        pullfs=expand("intermediate/{{hash}}/{{rep}}/umbrella/{win}.pullf.xvg", win=WINDOWS),
+        tprs=expand("intermediate/{{hash}}/{{rep}}/umbrella/{win}.tpr", win=WINDOWS),
+    output:
+        xvg="intermediate/{{hash}}/{{rep}}/umbrella/wham_free_energy.xvg",
+    shell:
+        "gmx wham -it <(printf '%s\n' {input.tprs}) -if <(printf '%s\n' {input.pullfs}) -o {output.xvg}"
+
+# -----------------------------------------------------------------------------
+# Cluster-Profile Hinweis
+# -----------------------------------------------------------------------------
+# Für Slurm ausführen:  snakemake --profile workflow/profile/slurm -j 32 

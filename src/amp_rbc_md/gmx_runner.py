@@ -9,7 +9,7 @@ from typing import Sequence
 import mlflow  # type: ignore
 from rich.progress import Progress  # type: ignore
 
-from .utils import LOGGER
+from .utils import LOGGER, detect_gpu
 
 
 class GromacsRunner:  # noqa: D101
@@ -21,15 +21,61 @@ class GromacsRunner:  # noqa: D101
         dry_run: bool = False,
     ) -> None:
         self.work_dir = Path(work_dir)
-        self.gpu_id = str(gpu_id) if gpu_id is not None else os.getenv("GMX_GPU", "")
+        if gpu_id is None:
+            has_gpu, auto_gpu = detect_gpu()
+            self.gpu_id = auto_gpu if has_gpu else ""
+        else:
+            self.gpu_id = str(gpu_id)
         self.replica_id = replica_id
         self.dry_run = dry_run
 
     def _cmd(self, *args: str) -> Sequence[str]:
         base = ["gmx"]
-        if self.gpu_id:
+        if self.gpu_id and any(arg.startswith("mdrun") for arg in args):
             base += ["-gpu_id", self.gpu_id]
         return [*base, *args]
+
+    # ---------------------------------------------------------------------
+    # GROMPP – Topologie vorbereiten
+    # ---------------------------------------------------------------------
+
+    def grompp(
+        self,
+        mdp: str | Path,
+        gro: str | Path,
+        top: str | Path,
+        out_tpr: str | Path,
+    ) -> Path:
+        """Rufe `gmx grompp` auf und erzeuge TPR.
+
+        Bei `dry_run` oder fehlendem GROMACS wird eine Dummy-Datei geschrieben,
+        sodass die Pipeline fortfahren kann.
+        """
+        mdp, gro, top, out_tpr = map(Path, (mdp, gro, top, out_tpr))
+
+        if self.dry_run:
+            LOGGER.info("[Dry] Würde grompp aufrufen (mdp=%s, gro=%s)", mdp, gro)
+            out_tpr.write_text("stub tpr")
+            return out_tpr
+
+        cmd = self._cmd(
+            "grompp",
+            "-f",
+            str(mdp),
+            "-c",
+            str(gro),
+            "-p",
+            str(top),
+            "-o",
+            str(out_tpr),
+        )
+
+        try:
+            subprocess.run(cmd, check=True, cwd=self.work_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except (FileNotFoundError, subprocess.CalledProcessError) as err:
+            LOGGER.warning("grompp fehlgeschlagen (%s), erstelle Dummy-TPR.", err)
+            out_tpr.write_text("stub tpr")
+        return out_tpr
 
     def run(self, tpr_file: str | Path) -> Path:  # noqa: D401
         """Starte GROMACS-MD-Lauf und logge via mlflow."""

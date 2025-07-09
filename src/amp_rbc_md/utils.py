@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 from rich.logging import RichHandler  # type: ignore
+import subprocess
 
 _LOGGER = None
 
@@ -57,6 +58,48 @@ def hash_sequence(sequence: str) -> str:
     return hashlib.sha1(sequence.encode()).hexdigest()[:10]
 
 
+# ---------------------------------------------------------------------------
+# Hardware Detection
+# ---------------------------------------------------------------------------
+
+
+def detect_gpu() -> tuple[bool, str | None]:
+    """Ermittle, ob eine NVIDIA-GPU vorhanden ist und liefere erste GPU-ID.
+
+    Strategien:
+    1. `nvidia-smi --query-gpu=index --format=csv,noheader`
+    2. Fallback: Prüfe, ob GROMACS als GPU-Build kompiliert wurde (`gmx --version`).
+    Liefert `(has_gpu, gpu_id)` – bei CPU-only `(False, None)`.
+    """
+
+    try:
+        res = subprocess.run(
+            ["nvidia-smi", "--query-gpu=index", "--format=csv,noheader"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        gpu_ids = [line.strip() for line in res.stdout.splitlines() if line.strip().isdigit()]
+        if gpu_ids:
+            LOGGER.info("GPU erkannt via nvidia-smi: %s", gpu_ids[0])
+            return True, gpu_ids[0]
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+
+    try:
+        res = subprocess.run(["gmx", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if "GPU support" in res.stdout:
+            # Heuristik: setze auf 0
+            LOGGER.info("GPU-Build von GROMACS erkannt, nehme Device 0")
+            return True, "0"
+    except FileNotFoundError:
+        pass
+
+    LOGGER.info("Keine GPU erkannt, wechsle auf CPU-Modus")
+    return False, None
+
+
 __all__: list[str] = [
     "get_logger",
     "LOGGER",
@@ -64,3 +107,4 @@ __all__: list[str] = [
     "ensure_dir",
     "hash_sequence",
 ]
+__all__.append("detect_gpu")

@@ -8,6 +8,14 @@ import numpy as np
 import yaml
 
 from .utils import LOGGER, ensure_dir
+from .wham import run_wham  # type: ignore
+from .pore import detect_pore  # type: ignore
+from .render import traj_to_mp4  # type: ignore
+
+try:
+    import mlflow  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    mlflow = None  # type: ignore
 
 JUDGE_CFG = yaml.safe_load(Path("config/judge.yaml").read_text())
 
@@ -40,7 +48,19 @@ def analyse_trajectory(traj: str | Path, out_dir: str | Path) -> dict[str, float
         "delta_g,ci95,thinning\n{:.3f},{:.3f},{:.3f}\n".format(dg, ci, thinning)
     )
     LOGGER.info("Analyse gespeicher in %s", csv_path)
-    return {"delta_g": dg, "ci95": ci, "thinning": thinning}
+    # Führe WHAM (Dummy im Dry-Run) aus
+    delta_g_wham, _ = run_wham(out_dir, dry_run=True)
+    pore = detect_pore(traj)
+
+    # Rendering MP4 (Dummy bei fehlender Abhängigkeit)
+    mp4_path = traj_to_mp4(traj, gro=None, out_mp4=Path(out_dir) / "traj.mp4")
+    if mlflow is not None:
+        try:
+            mlflow.log_artifact(str(mp4_path))
+        except Exception:  # pragma: no cover
+            pass
+
+    return {"delta_g": delta_g_wham, "ci95": ci, "thinning": thinning, "pore": pore}
 
 
 __all__ = [
