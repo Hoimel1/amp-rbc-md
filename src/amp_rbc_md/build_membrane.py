@@ -27,14 +27,24 @@ def build(profile: str, peptide_gro: str | Path, out_dir: str | Path) -> Path:
         ",".join(f"{l['name']}:{l['ratio']}" for l in lipids["lipids"]),
         "-u", "W",
         "-sol", "W",
+        "-x", "10.0",
+        "-y", "10.0",
+        "-z", "10.0",
     ]
 
     try:
         LOGGER.info("Baue Membran mit insane.py: %s", " ".join(cmd))
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         LOGGER.info("insane erfolgreich ausgeführt")
-    except (FileNotFoundError, subprocess.CalledProcessError) as e:
+    except subprocess.CalledProcessError as e:
         LOGGER.error("insane fehlgeschlagen: %s", e)
+        if e.stderr:
+            LOGGER.error("insane stderr: %s", e.stderr)
+        if e.stdout:
+            LOGGER.error("insane stdout: %s", e.stdout)
+        raise RuntimeError(f"insane konnte nicht ausgeführt werden: {e}")
+    except FileNotFoundError as e:
+        LOGGER.error("insane nicht gefunden: %s", e)
         raise RuntimeError(f"insane konnte nicht ausgeführt werden: {e}")
     return system_gro
 
