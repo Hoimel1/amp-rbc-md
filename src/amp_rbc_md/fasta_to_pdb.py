@@ -10,53 +10,63 @@ from Bio.SeqRecord import SeqRecord  # type: ignore
 from Bio import SeqIO  # type: ignore
 
 try:
-    import esm
-    ESM_AVAILABLE = True
+    import colabfold
+    COLABFOLD_AVAILABLE = True
 except ImportError:
-    ESM_AVAILABLE = False
+    COLABFOLD_AVAILABLE = False
 
 from .utils import LOGGER, ensure_dir, set_seed
 
 
 def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
-    """Konvertiere eine Peptidsequenz in eine PDB-Datei mit ESMFold.
+    """Konvertiere eine Peptidsequenz in eine PDB-Datei mit ColabFold.
 
-    Verwendet ESMFold v1 für State-of-the-Art Strukturvorhersage.
+    Verwendet ColabFold für State-of-the-Art Strukturvorhersage.
     """
     set_seed()
     out_dir = ensure_dir(out_dir)
     pdb_path = Path(out_dir) / "model.pdb"
 
-    if not ESM_AVAILABLE:
-        raise RuntimeError("ESMFold ist nicht verfügbar. Bitte installieren Sie es mit: pip install fair-esm")
+    if not COLABFOLD_AVAILABLE:
+        raise RuntimeError(
+            "ColabFold ist nicht verfügbar. Bitte installieren Sie es mit:\n"
+            "pip install colabfold"
+        )
 
     try:
-        LOGGER.info("Verwende ESMFold v1 für State-of-the-Art Strukturvorhersage")
+        LOGGER.info("Verwende ColabFold für State-of-the-Art Strukturvorhersage")
         
-        # Lade ESMFold v1 Modell
-        model = esm.pretrained.esmfold_v1()
+        # Erstelle temporäre FASTA-Datei
+        temp_fasta = Path(out_dir) / "temp.fasta"
+        temp_fasta.write_text(f">peptide\n{sequence}\n")
         
-        # Vorhersage der Struktur
-        output = model.infer_pdb(sequence)
+        # ColabFold Vorhersage
+        from colabfold.batch import get_queries, run
+        from colabfold.download import download_alphafold_params
         
-        # Speichere PDB-Datei
-        pdb_path.write_text(output)
+        # Lade AlphaFold Parameter
+        download_alphafold_params()
         
-        LOGGER.info("ESMFold v1 Struktur unter %s erzeugt", pdb_path)
+        # Führe Vorhersage aus
+        queries = get_queries([str(temp_fasta)])
+        results = run(queries, result_dir=str(out_dir), use_templates=False, custom_template_path=None)
         
-    except ImportError as e:
-        if "openfold" in str(e):
-            raise RuntimeError(
-                "ESMFold v1 benötigt openfold. Bitte installieren Sie es mit:\n"
-                "pip install openfold\n"
-                "oder\n"
-                "conda install -c conda-forge openfold"
-            )
+        # Finde die beste PDB-Datei
+        pdb_files = list(out_dir.glob("*.pdb"))
+        if pdb_files:
+            best_pdb = pdb_files[0]  # Nimm die erste gefundene PDB
+            best_pdb.rename(pdb_path)
         else:
-            raise RuntimeError(f"ESMFold konnte nicht geladen werden: {e}")
+            raise RuntimeError("ColabFold konnte keine PDB-Datei erzeugen")
+        
+        # Lösche temporäre Dateien
+        temp_fasta.unlink(missing_ok=True)
+        
+        LOGGER.info("ColabFold Struktur unter %s erzeugt", pdb_path)
+        
     except Exception as e:
-        LOGGER.error("ESMFold fehlgeschlagen: %s", e)
-        raise RuntimeError(f"ESMFold konnte keine Struktur für Sequenz '{sequence}' vorhersagen: {e}")
+        LOGGER.error("ColabFold fehlgeschlagen: %s", e)
+        raise RuntimeError(f"ColabFold konnte keine Struktur für Sequenz '{sequence}' vorhersagen: {e}")
 
     # Speichere FASTA parallel, nützlich für Referenz.
     fasta_path = Path(out_dir) / "sequence.fasta"
