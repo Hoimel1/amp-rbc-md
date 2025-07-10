@@ -55,16 +55,11 @@ class GromacsRunner:  # noqa: D101
         top: str | Path,
         out_tpr: str | Path,
     ) -> Path:
-        """Rufe `gmx grompp` auf und erzeuge TPR.
-
-        Bei `dry_run` oder fehlendem GROMACS wird eine Dummy-Datei geschrieben,
-        sodass die Pipeline fortfahren kann.
-        """
+        """Rufe `gmx grompp` auf und erzeuge TPR."""
         mdp, gro, top, out_tpr = map(Path, (mdp, gro, top, out_tpr))
 
         if self.dry_run:
             LOGGER.info("[Dry] Würde grompp aufrufen (mdp=%s, gro=%s)", mdp, gro)
-            out_tpr.write_text("stub tpr")
             return out_tpr
 
         cmd = self._cmd(
@@ -79,32 +74,17 @@ class GromacsRunner:  # noqa: D101
             str(out_tpr),
         )
 
-        try:
-            LOGGER.info("Führe grompp aus: %s", " ".join(cmd))
-            result = subprocess.run(
-                cmd, 
-                cwd=self.work_dir, 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE,
-                text=True,
-                check=True
-            )
-            LOGGER.info("grompp erfolgreich ausgeführt")
-            return out_tpr
-        except subprocess.CalledProcessError as err:
-            LOGGER.error("grompp fehlgeschlagen: %s", err)
-            if err.stdout:
-                LOGGER.error("grompp stdout: %s", err.stdout)
-            if err.stderr:
-                LOGGER.error("grompp stderr: %s", err.stderr)
-            LOGGER.warning("Erstelle Dummy-TPR für Pipeline-Kontinuität")
-            out_tpr.write_text("stub tpr")
-            return out_tpr
-        except FileNotFoundError as err:
-            LOGGER.error("gmx nicht gefunden: %s", err)
-            LOGGER.warning("Erstelle Dummy-TPR für Pipeline-Kontinuität")
-            out_tpr.write_text("stub tpr")
-            return out_tpr
+        LOGGER.info("Führe grompp aus: %s", " ".join(cmd))
+        result = subprocess.run(
+            cmd, 
+            cwd=self.work_dir, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        LOGGER.info("grompp erfolgreich ausgeführt")
+        return out_tpr
 
     def run(self, tpr_file: str | Path) -> Path:  # noqa: D401
         """Starte GROMACS-MD-Lauf und logge via mlflow."""

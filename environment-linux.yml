@@ -23,6 +23,6 @@ dependencies:
   - pip
   - pip:
       # GPU-abhängige Python-Pakete
-      - fair-esm[esmfold]>=0.8  # enthält esmfold_v1 + OpenFold-Bridge (CUDA erforderlich)
-      - torch==2.3.0  # wird vom openfold-Build via pip wheel mit CUDA-Unterstützung installiert
+      - colabfold>=1.6.0  # AlphaFold2-Implementierung für Strukturvorhersage
+      - torch==2.3.0  # PyTorch mit CUDA-Unterstützung
       - omegaconf 

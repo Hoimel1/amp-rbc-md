@@ -61,15 +61,14 @@ if torch.cuda.is_available():
     print(f'GPU Speicher: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB')
 "
 
-# ESMFold-Test
-echo "Teste ESMFold..."
+# ColabFold-Test
+echo "Teste ColabFold..."
 python -c "
-import esm
-print('ESMFold verfügbar:', hasattr(esm.pretrained, 'esmfold_v1'))
-if hasattr(esm.pretrained, 'esmfold_v1'):
-    print('ESMFold v1 lädt...')
-    model = esm.pretrained.esmfold_v1()
-    print('ESMFold v1 erfolgreich geladen!')
+import colabfold
+print('ColabFold verfügbar:', hasattr(colabfold, 'batch'))
+if hasattr(colabfold, 'batch'):
+    print('ColabFold Batch-Modul verfügbar!')
+    print('ColabFold Version:', colabfold.__version__)
 "
 
 echo "=== SETUP ABGESCHLOSSEN ==="

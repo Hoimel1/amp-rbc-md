@@ -9,7 +9,7 @@ Batch-fähige Martini-3-Simulation roter Blutkörperchen-Peptide (≤10) mit Rep
 conda env create -f environment.yml
 conda activate amp-rbc-md
 
-# Linux + GPU (inkl. GROMACS):
+# Linux + GPU (inkl. GROMACS + ColabFold):
 conda env create -f environment-linux.yml
 conda activate amp-rbc-md
 
@@ -19,6 +19,8 @@ amp-rbc-md run_sim --seq "GLSILGKLL" --n-replica 2 --dry-run
 ## Theorie-Hintergrund
 
 Die Insertions-Freie-Energie (ΔG_insert) wird aus Umbrella-Sampling-Fenstern mittels WHAM bestimmt. Ein Bootstrap (N=200) liefert Konfidenzintervalle, die mit heuristischen Schwellen aus `config/judge.yaml` verglichen werden, um toxische Kandidaten zu markieren.
+
+**Strukturvorhersage**: Verwendet ColabFold (AlphaFold2-Implementierung) für State-of-the-Art Protein-Strukturvorhersage.
 
 ## Slurm-Guide (GPU)
 
