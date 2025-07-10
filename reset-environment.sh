@@ -23,7 +23,7 @@ conda activate amp-rbc-md
 
 # Installiere Basis-Pakete
 echo "Installiere Basis-Pakete..."
-conda install -y gromacs=2024 biopython click pyyaml tqdm matplotlib mlflow moviepy rich pytest pytest-cov black flake8 mypy isort
+conda install -c conda-forge -c bioconda -y gromacs=2024 biopython click pyyaml tqdm matplotlib mlflow moviepy rich pytest pytest-cov black flake8 mypy isort
 
 # Installiere kompatible NumPy/Pandas
 echo "Installiere kompatible NumPy/Pandas..."
