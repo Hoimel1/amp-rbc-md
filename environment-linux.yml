@@ -26,4 +26,4 @@ dependencies:
       # GPU-abhängige Python-Pakete
       - colabfold==1.5.5  # AlphaFold2-Implementierung für Strukturvorhersage
       - omegaconf
-      # PyTorch wird separat installiert um Konflikte zu vermeiden 
+      # PyTorch und JAX werden separat installiert um Konflikte zu vermeiden 
