@@ -19,9 +19,9 @@ dependencies:
   # MD-Stack
   - gromacs=2024          # GPU-fähiges GROMACS
   - vermouth              # martinize2-Dependency
-  # GPU-Stack
-  - pytorch=2.3.*=cuda121*
-  - pytorch-cuda=12.1     # CUDA-Runtime via conda-forge/nvidia
+  # GPU-Stack (torch via pip nach der Env-Aktivierung installieren)
+  # - pytorch=2.3.*=cuda121*
+  # - pytorch-cuda=12.1     # get rid – nutzen wir Pip-Wheels
   #  - cudnn=8.9  # optional, falls System-Bibliotheken benötigt werden
   # Dev / Tests
   - pytest
