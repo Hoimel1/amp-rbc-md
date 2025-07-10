@@ -33,7 +33,7 @@ dependencies:
   - pip
   - pip:
       # FastFold + OpenFold + Deepspeed
-      - "openfold @ git+https://github.com/aqlaboratory/openfold.git@main#egg=openfold&subdirectory=openfold"
+      - "openfold @ git+https://github.com/aqlaboratory/openfold.git@main"
       - "fastfold @ git+https://github.com/hpcaitech/FastFold.git@main"
       - deepspeed==0.14.4
       - insane               # Python-Package ersatzweise über pip
