@@ -44,6 +44,31 @@ amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
 amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
 ```
 
+### PDB-mmCIF-Daten für FastFold herunterladen
+
+FastFold / OpenFold benötigt die **experimentellen PDB-Strukturdaten** (mmCIF-Format). Einmalig herunterladen ⇒ ~95 GB :
+
+```bash
+# Zielverzeichnis festlegen
+export OPENFOLD_DATA=$HOME/alphafold_dbs
+mkdir -p "$OPENFOLD_DATA/pdb_mmcif/mmcif_files"
+
+# Kompletten mmCIF-Mirror vom PDBe-rsync holen
+rsync -rlpt -v -z --delete \
+    rsync.ebi.ac.uk::pub/databases/pdb/data/structures/divided/mmCIF/ \
+    "$OPENFOLD_DATA/pdb_mmcif/mmcif_files"
+
+# (Empfohlen) SEQRES-Datei für Template-Suche
+wget -P "$OPENFOLD_DATA/pdb_mmcif" \
+    https://ftp.ebi.ac.uk/pub/databases/pdb/derived_data/pdb_seqres.txt
+```
+
+Danach die Variable dauerhaft setzen (z. B. in `~/.bashrc`):
+
+```bash
+echo 'export OPENFOLD_DATA="$HOME/alphafold_dbs"' >> ~/.bashrc
+```
+
 ## 🧬 Theorie-Hintergrund
 
 Die Insertions-Freie-Energie (ΔG_insert) wird aus Umbrella-Sampling-Fenstern mittels WHAM bestimmt. Ein Bootstrap (N=200) liefert Konfidenzintervalle, die mit heuristischen Schwellen aus `config/judge.yaml` verglichen werden, um toxische Kandidaten zu markieren.
