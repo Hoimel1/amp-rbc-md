@@ -22,7 +22,7 @@ dependencies:
   # GPU-Stack
   - pytorch=2.3.*=cuda121*
   - pytorch-cuda=12.1     # CUDA-Runtime via conda-forge/nvidia
-  - nvidia-cudnn-cu12=8.9.2
+  #  - cudnn=8.9  # optional, falls System-Bibliotheken benötigt werden
   # Dev / Tests
   - pytest
   - pytest-cov
