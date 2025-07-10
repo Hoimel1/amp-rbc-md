@@ -1,6 +1,11 @@
-# amp-rbc-md
+# amp-rbc-md  
+[![CI](https://github.com/Hoimel1/amp-rbc-md/actions/workflows/ci.yml/badge.svg)](https://github.com/Hoimel1/amp-rbc-md/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1234567.svg)](https://doi.org/10.5281/zenodo.1234567)
 
-Batch-fähige Martini-3-Simulation roter Blutkörperchen-Peptide (≤10) mit Replika-Support, WHAM-Bootstrap-Analyse und konfigurierbarer Tox-Logik.
+Batch-fähige Martini-3-Simulations­pipeline für antimikrobielle Peptide an roten Blutkörperchen – inkl. Replika-Support, WHAM-Bootstrap-Analyse & automatischer Tox-Bewertung.
+
+---
 
 ## 🚀 Quick Start
 
@@ -164,3 +169,13 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) f�
 - **ColabFold** für AlphaFold2-Implementierung
 - **GROMACS** für MD-Simulationen
 - **Martini** für Coarse-Grained-Kraftfeld
+
+## 📜 Zitieren
+
+Bitte zitieren Sie diese Software wie folgt (Platzhalter-DOI wird bei Release ersetzt):
+
+```
+Michel Hüller et al. amp-rbc-md: Martini-3 Workflow for Red Blood Cell Peptide Insertion. Version 1.0.0, 2025. DOI:10.5281/zenodo.1234567
+```
+
+---

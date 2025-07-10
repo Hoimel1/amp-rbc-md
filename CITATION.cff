@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Wenn Sie diese Software nutzen, zitieren Sie bitte folgende Referenz."
+authors:
+  - family-names: Hüller
+    given-names: Michel
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+    affiliation: "TU München"
+  - family-names: <add co-authors>
+    given-names: <firstnames>
+    affiliation: <institution>
+preferred-citation:
+  type: software
+  title: "amp-rbc-md: Martini-3 Workflow for Red Blood Cell Peptide Insertion"
+  version: "1.0.0"
+  date-released: 2025-07-10
+  doi: 10.5281/zenodo.1234567
+  url: "https://github.com/Hoimel1/amp-rbc-md" 
