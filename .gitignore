@@ -1,35 +1,109 @@
-### Python ###
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-### Conda ###
-.env/
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Conda
 .conda/
 
-### Build ###
-build/
-dist/
-*.egg-info/
+# Jupyter Notebook
+.ipynb_checkpoints
 
-### GROMACS artefacts ###
-*.gro
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation
+docs/_build/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Simulation results
+results/
+outputs/
+trajectories/
 *.xtc
 *.trr
-*.tpr
 *.edr
+*.gro
+*.top
+*.pdb
+*.psf
+
+# Temporary files
+*.tmp
+*.temp
 *.log
+*.out
+*.err
 
-### Caches ###
-.cache/
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-### mlflow ###
-mlruns/
+# GROMACS
+*.tpr
+*.cpt
+*.mdp
+*.ndx
+*.xvg
+*.dat
 
-### Images & Videos ###
-*.png
-*.mp4
+# AlphaFold/ColabFold
+*.pkl
+*.pdb.gz
+*.fasta.gz
 
-### IDEs ###
-.vscode/
-.idea/ 
-*.ipynb 
+# Large data files
+*.h5
+*.hdf5
+*.nc
+*.netcdf
+
+# Backup files
+*.bak
+*.backup
+*~ 

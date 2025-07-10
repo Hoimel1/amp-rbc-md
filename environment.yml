@@ -2,13 +2,14 @@ name: amp-rbc-md
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python=3.10
+  - gromacs=2024
   - biopython
   - click
   - pyyaml
-  - pandas
+  - pandas=1.5.3
+  - numpy=1.24.3
   - tqdm
   - matplotlib
   - mlflow
@@ -20,8 +21,7 @@ dependencies:
   - flake8
   - mypy
   - isort
-  - types-PyYAML 
   - pip
   - pip:
-      - martinize2==2.2.0
-      - insane 
+      # GPU-spezifische Pakete werden separat installiert
+      - omegaconf 
