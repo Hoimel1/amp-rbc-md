@@ -1,3 +1,6 @@
 [submodule "martinize2"]
 	path = martinize2
 	url = https://github.com/marrink-lab/vermouth-martinize.git
+[submodule "external/openfold"]
+	path = external/openfold
+	url = https://github.com/aqlaboratory/openfold.git

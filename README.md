@@ -31,6 +31,11 @@ pip install -e .
 
 # Datenbanken für FastFold/OpenFold (einmalig)
 # export OPENFOLD_DATA=/path/to/alphafold_dbs
+
+# OpenFold-Submodul initialisieren
+git submodule update --init --recursive
+# und lokal installieren
+pip install -e external/openfold
 ```
 
 ### Verifikation
