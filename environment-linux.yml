@@ -26,6 +26,7 @@ dependencies:
       - colabfold>=1.5.5  # AlphaFold2-Implementierung für Strukturvorhersage
       - torch==2.3.0  # PyTorch mit CUDA-Unterstützung
       - omegaconf
-      # Spezifische JAX-Versionen für ColabFold-Kompatibilität
-      - "jax[cuda12_pip]==0.4.20"
-      - "jaxlib[cuda12_pip]==0.4.20" 
+      # Kompatible JAX-Versionen für ColabFold
+      - "jax==0.4.13"
+      - "jaxlib==0.4.13"
+      - "chex==0.1.7" 
