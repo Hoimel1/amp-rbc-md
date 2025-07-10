@@ -33,6 +33,23 @@ conda install -y numpy=1.24.3 pandas=1.5.3
 echo "Installiere JAX-CUDA..."
 pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
+# Prüfe JAX-CUDA Installation
+echo "Prüfe JAX-CUDA Installation..."
+python -c "
+import jax
+import jaxlib
+print(f'JAX Version: {jax.__version__}')
+print(f'JAXlib Version: {jaxlib.__version__}')
+print(f'JAX Devices: {jax.devices()}')
+print(f'CUDA verfügbar: {len([d for d in jax.devices() if d.platform == \"gpu\"]) > 0}')
+if len([d for d in jax.devices() if d.platform == \"gpu\"]) == 0:
+    print('WARNUNG: CUDA nicht erkannt! Installiere CUDA-kompatible Version...')
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--force-reinstall', 'jax==0.4.25', 'jaxlib==0.4.25+cuda12.cudnn89', '-f', 'https://storage.googleapis.com/jax-releases/jax_cuda_releases.html'])
+    print('JAX-CUDA neu installiert!')
+"
+
 # Installiere ColabFold (ohne TensorFlow-Konflikte)
 echo "Installiere ColabFold..."
 pip install colabfold==1.5.5

@@ -32,8 +32,8 @@ conda install -y gromacs=2024 biopython click pyyaml tqdm matplotlib mlflow movi
 # 4. Kompatible NumPy/Pandas
 conda install -y numpy=1.24.3 pandas=1.5.3
 
-# 5. JAX-CUDA installieren
-pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+# 5. JAX-CUDA installieren (korrekte Version)
+pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 # 6. ColabFold installieren
 pip install colabfold==1.5.5
@@ -65,7 +65,7 @@ Diese Anforderungen schließen sich gegenseitig aus!
 ```
 === INSTALLATION ERFOLGREICH ===
 JAX Version: 0.4.25
-JAXlib Version: 0.4.25
+JAXlib Version: 0.4.25+cuda12.cudnn89
 JAX Devices: [cuda(id=0)]
 JAX CUDA verfügbar: True
 PyTorch Version: 2.3.0+cu121
