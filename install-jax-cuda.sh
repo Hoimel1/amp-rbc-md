@@ -16,7 +16,16 @@ pip uninstall -y jax jaxlib
 
 # Installiere CUDA-kompatible JAX-Version
 echo "Installiere CUDA-kompatible JAX-Version..."
-pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# Prüfe Plattform
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Linux-Plattform erkannt, installiere Linux-CUDA-Version..."
+    # Linux-spezifische Installation
+    pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+else
+    echo "Nicht-Linux-Plattform erkannt. Bitte führe dieses Skript auf deiner Linux-GPU-VM aus."
+    exit 1
+fi
 
 # Teste JAX-CUDA
 echo "Teste JAX-CUDA-Unterstützung..."
