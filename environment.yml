@@ -18,7 +18,6 @@ dependencies:
   - moviepy
   # MD-Stack
   - gromacs=2024          # GPU-fähiges GROMACS
-  - insane                # Membran-Builder
   - vermouth              # martinize2-Dependency
   # GPU-Stack
   - pytorch=2.3.*=cuda121*
@@ -37,5 +36,6 @@ dependencies:
       - "openfold @ git+https://github.com/aqlaboratory/openfold.git@main#egg=openfold&subdirectory=openfold"
       - "fastfold @ git+https://github.com/hpcaitech/FastFold.git@main"
       - deepspeed==0.14.4
+      - insane               # Python-Package ersatzweise über pip
       # Unser Projekt selber (editable install wenn innerhalb venv)
       - -e . 
