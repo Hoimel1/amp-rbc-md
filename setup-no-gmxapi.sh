@@ -1,11 +1,11 @@
 #!/bin/bash
-# amp-rbc-md Setup Script mit gmxapi für Linux
-# PyTorch 2.3.0+cu121 + nvidia-cudnn-cu12==8.9.2.26 + JAX 0.4.25 + gmxapi
-# Ausführung: bash setup-with-gmxapi.sh
+# amp-rbc-md Setup Script ohne gmxapi für Linux
+# PyTorch 2.3.0+cu121 + nvidia-cudnn-cu12==8.9.2.26 + JAX 0.4.25
+# Ausführung: bash setup-no-gmxapi.sh
 
 set -e
 
-echo "=== AMP-RBC-MD SETUP MIT GMXAPI ==="
+echo "=== AMP-RBC-MD SETUP OHNE GMXAPI ==="
 
 # Prüfe CUDA-Installation
 if ! command -v nvidia-smi &> /dev/null; then
@@ -68,14 +68,6 @@ conda install -c conda-forge -c bioconda -y \
     mypy \
     isort
 
-# Versuche gmxapi über conda zu installieren (bessere Kompatibilität)
-echo "Versuche gmxapi über conda zu installieren..."
-if conda install -c conda-forge gmxapi -y 2>/dev/null; then
-    echo "✅ gmxapi über conda installiert"
-else
-    echo "⚠️  gmxapi über conda nicht verfügbar, überspringe"
-fi
-
 # Installiere JAX 0.4.25 mit CUDA
 echo "Installiere JAX 0.4.25 mit CUDA..."
 pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
@@ -104,7 +96,7 @@ pip install -e .
 echo "Teste Installation..."
 python verify-installation.py
 
-echo "=== SETUP MIT GMXAPI ERFOLGREICH ABGESCHLOSSEN ==="
+echo "=== SETUP OHNE GMXAPI ERFOLGREICH ABGESCHLOSSEN ==="
 echo ""
 echo "Nächste Schritte:"
 echo "1. Testen Sie eine Simulation:"
