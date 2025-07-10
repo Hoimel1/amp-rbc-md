@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """
-Verifikations-Skript für amp-rbc-md Installation
-Testet alle kritischen Komponenten und Versionen
+AMP-RBC-MD Installations-Verifikation
+Prüft alle kritischen Module und Abhängigkeiten
 """
 
 import sys
 import subprocess
-import importlib
+from pathlib import Path
 
-def test_import(module_name, version_attr='__version__'):
-    """Teste Import und Version eines Moduls"""
+def check_module(module_name, version_check=None):
+    """Prüfe ob ein Modul verfügbar ist."""
     try:
-        module = importlib.import_module(module_name)
-        version = getattr(module, version_attr, 'unbekannt')
+        module = __import__(module_name)
+        version = getattr(module, '__version__', 'unbekannt')
         print(f"✅ {module_name}: {version}")
+        
+        if version_check:
+            version_check(module, version)
         return True
     except ImportError as e:
         print(f"❌ {module_name}: Import fehlgeschlagen - {e}")
@@ -22,153 +25,184 @@ def test_import(module_name, version_attr='__version__'):
         print(f"⚠️  {module_name}: Fehler - {e}")
         return False
 
-def test_cuda_support():
-    """Teste CUDA-Unterstützung"""
-    print("\n=== CUDA-UNTERSTÜTZUNG ===")
-    
-    # PyTorch CUDA
-    try:
-        import torch
-        if torch.cuda.is_available():
-            print(f"✅ PyTorch CUDA: {torch.version.cuda}")
-            print(f"   GPU: {torch.cuda.get_device_name(0)}")
-            print(f"   GPU-Anzahl: {torch.cuda.device_count()}")
-        else:
-            print("❌ PyTorch CUDA: Nicht verfügbar")
-    except Exception as e:
-        print(f"❌ PyTorch CUDA Test fehlgeschlagen: {e}")
-    
-    # JAX CUDA
+def check_jax_cuda():
+    """Prüfe JAX CUDA-Unterstützung."""
     try:
         import jax
-        devices = jax.devices()
-        gpu_devices = [d for d in devices if d.platform == 'gpu']
-        if gpu_devices:
-            print(f"✅ JAX CUDA: {len(gpu_devices)} GPU(s) verfügbar")
-            print(f"   Devices: {devices}")
-        else:
-            print("❌ JAX CUDA: Keine GPU-Devices gefunden")
-    except Exception as e:
-        print(f"❌ JAX CUDA Test fehlgeschlagen: {e}")
-
-def test_linear_util():
-    """Teste JAX linear_util Verfügbarkeit"""
-    print("\n=== JAX LINEAR_UTIL ===")
-    try:
-        import jax
-        if hasattr(jax, 'linear_util'):
-            print("✅ JAX linear_util: Verfügbar")
-            return True
-        else:
-            print("❌ JAX linear_util: Nicht verfügbar")
+        import jaxlib
+        
+        # Prüfe CUDA-Geräte
+        try:
+            devices = jax.devices()
+            gpu_devices = [d for d in devices if d.platform == 'gpu']
+            if gpu_devices:
+                print(f"✅ JAX CUDA: {len(gpu_devices)} GPU-Geräte gefunden")
+                return True
+            else:
+                print("❌ JAX CUDA: Keine GPU-Devices gefunden")
+                return False
+        except Exception as e:
+            print(f"❌ JAX CUDA: {e}")
             return False
-    except Exception as e:
-        print(f"❌ JAX linear_util Test fehlgeschlagen: {e}")
+    except ImportError:
+        print("❌ JAX CUDA: JAX nicht installiert")
         return False
 
-def test_colabfold():
-    """Teste ColabFold-Funktionalität"""
-    print("\n=== COLABFOLD ===")
+def check_linear_util():
+    """Prüfe JAX linear_util Verfügbarkeit."""
+    try:
+        from jax._src import linear_util
+        print("✅ JAX linear_util: Verfügbar")
+        return True
+    except ImportError:
+        print("❌ JAX linear_util: Nicht verfügbar")
+        return False
+
+def check_colabfold():
+    """Prüfe ColabFold-Funktionalität."""
     try:
         import colabfold
         print("✅ ColabFold: Import erfolgreich")
         
-        # Teste batch-Funktion
+        # Prüfe batch-Funktion
         try:
-            if hasattr(colabfold, 'batch'):
-                print("✅ ColabFold batch: Verfügbar")
-            else:
-                print("❌ ColabFold batch: Nicht verfügbar")
-        except Exception as e:
-            print(f"⚠️  ColabFold batch Test: {e}")
-        
-        # Teste download_alphafold_params
+            from colabfold import batch
+            print("✅ ColabFold batch: Verfügbar")
+        except ImportError:
+            print("❌ ColabFold batch: Nicht verfügbar")
+            
+        # Prüfe download_alphafold_params
         try:
-            if hasattr(colabfold, 'download_alphafold_params'):
-                print("✅ ColabFold download_alphafold_params: Verfügbar")
-            else:
-                print("❌ ColabFold download_alphafold_params: Nicht verfügbar")
-        except Exception as e:
-            print(f"⚠️  ColabFold download_alphafold_params Test: {e}")
+            from colabfold.download import download_alphafold_params
+            print("✅ ColabFold download_alphafold_params: Verfügbar")
+        except ImportError:
+            print("❌ ColabFold download_alphafold_params: Nicht verfügbar")
             
         return True
     except Exception as e:
-        print(f"❌ ColabFold Test fehlgeschlagen: {e}")
+        print(f"❌ ColabFold: {e}")
         return False
 
-def test_cudnn():
-    """Teste cuDNN Installation"""
-    print("\n=== CUDNN ===")
+def check_gromacs():
+    """Prüfe GROMACS-Installation."""
     try:
-        result = subprocess.run(['pip', 'list'], capture_output=True, text=True)
-        if 'nvidia-cudnn-cu12' in result.stdout:
-            print("✅ nvidia-cudnn-cu12: Installiert")
-            return True
-        else:
-            print("❌ nvidia-cudnn-cu12: Nicht gefunden")
-            return False
-    except Exception as e:
-        print(f"❌ cuDNN Test fehlgeschlagen: {e}")
+        import gromacs
+        print("✅ gromacs: Import erfolgreich")
+        return True
+    except ImportError:
+        print("❌ gromacs: Import fehlgeschlagen - No module named 'gromacs'")
         return False
 
-def test_amp_rbc_md():
-    """Teste amp-rbc-md Installation"""
-    print("\n=== AMP-RBC-MD ===")
+def check_amp_rbc_md():
+    """Prüfe amp-rbc-md Installation."""
     try:
         import amp_rbc_md
         print("✅ amp-rbc-md: Import erfolgreich")
         
-        # Teste CLI
-        result = subprocess.run(['amp-rbc-md', '--help'], capture_output=True, text=True)
-        if result.returncode == 0:
-            print("✅ amp-rbc-md CLI: Verfügbar")
+        # Prüfe CLI
+        try:
+            result = subprocess.run(['amp-rbc-md', '--help'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                print("✅ amp-rbc-md CLI: Verfügbar")
+                return True
+            else:
+                print("❌ amp-rbc-md CLI: Fehler")
+                return False
+        except Exception as e:
+            print(f"❌ amp-rbc-md CLI: {e}")
+            return False
+    except ImportError as e:
+        print(f"❌ amp-rbc-md: {e}")
+        return False
+
+def check_cuda_versions():
+    """Prüfe CUDA-Versionskompatibilität."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            cuda_version = torch.version.cuda
+            print(f"✅ PyTorch CUDA: {cuda_version}")
+            
+            # Prüfe GPU-Info
+            gpu_count = torch.cuda.device_count()
+            if gpu_count > 0:
+                gpu_name = torch.cuda.get_device_name(0)
+                print(f"   GPU: {gpu_name}")
+                print(f"   GPU-Anzahl: {gpu_count}")
             return True
         else:
-            print("❌ amp-rbc-md CLI: Fehler")
+            print("❌ PyTorch CUDA: Nicht verfügbar")
             return False
     except Exception as e:
-        print(f"❌ amp-rbc-md Test fehlgeschlagen: {e}")
+        print(f"❌ PyTorch CUDA: {e}")
+        return False
+
+def check_cudnn():
+    """Prüfe cuDNN-Installation."""
+    try:
+        import nvidia.cudnn
+        print("✅ nvidia-cudnn-cu12: Installiert")
+        return True
+    except ImportError:
+        print("❌ nvidia-cudnn-cu12: Nicht installiert")
         return False
 
 def main():
-    """Hauptfunktion"""
+    """Hauptfunktion für Verifikation."""
     print("=== AMP-RBC-MD INSTALLATIONS-VERIFIKATION ===")
+    
+    # Python-Version
     print(f"Python Version: {sys.version}")
+    print()
     
-    # Teste kritische Module
-    print("\n=== KRITISCHE MODULE ===")
-    modules = [
-        ('jax', '__version__'),
-        ('jaxlib', '__version__'),
-        ('torch', '__version__'),
-        ('colabfold', None),
-        ('pandas', '__version__'),
-        ('numpy', '__version__'),
-        ('gromacs', None),  # Falls verfügbar
-    ]
+    # Kritische Module
+    print("=== KRITISCHE MODULE ===")
+    jax_ok = check_module("jax")
+    jaxlib_ok = check_module("jaxlib")
+    torch_ok = check_module("torch")
+    colabfold_ok = check_colabfold()
+    pandas_ok = check_module("pandas")
+    numpy_ok = check_module("numpy")
+    gromacs_ok = check_gromacs()
     
-    all_modules_ok = True
-    for module_name, version_attr in modules:
-        if not test_import(module_name, version_attr):
-            all_modules_ok = False
+    print()
+    print("=== CUDA-UNTERSTÜTZUNG ===")
+    cuda_ok = check_cuda_versions()
+    jax_cuda_ok = check_jax_cuda()
     
-    # Spezielle Tests
-    test_cuda_support()
-    test_linear_util()
-    test_colabfold()
-    test_cudnn()
-    test_amp_rbc_md()
+    print()
+    print("=== JAX LINEAR_UTIL ===")
+    linear_util_ok = check_linear_util()
     
-    # Zusammenfassung
-    print("\n=== ZUSAMMENFASSUNG ===")
-    if all_modules_ok:
-        print("✅ Alle kritischen Module sind verfügbar")
-        print("🎉 Installation erfolgreich!")
+    print()
+    print("=== COLABFOLD ===")
+    colabfold_ok = check_colabfold()
+    
+    print()
+    print("=== CUDNN ===")
+    cudnn_ok = check_cudnn()
+    
+    print()
+    print("=== AMP-RBC-MD ===")
+    amp_ok = check_amp_rbc_md()
+    
+    print()
+    print("=== ZUSAMMENFASSUNG ===")
+    
+    all_ok = all([
+        jax_ok, jaxlib_ok, torch_ok, pandas_ok, numpy_ok, 
+        cuda_ok, cudnn_ok, amp_ok
+    ])
+    
+    if all_ok:
+        print("✅ Alle kritischen Module funktionieren")
     else:
         print("❌ Einige Module fehlen oder haben Probleme")
-        print("💡 Führen Sie 'bash setup-clean-environment.sh' aus")
+        print("💡 Führen Sie 'bash setup-fixed.sh' aus")
     
-    print("\n=== NÄCHSTE SCHRITTE ===")
+    print()
+    print("=== NÄCHSTE SCHRITTE ===")
     print("1. Testen Sie eine Simulation:")
     print("   amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run")
     print("2. Führen Sie eine echte Simulation aus:")

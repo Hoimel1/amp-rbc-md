@@ -18,7 +18,7 @@ git clone https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
 # Automatisches Setup (empfohlen)
-bash setup.sh
+bash setup-fixed.sh
 
 # Oder manuell:
 conda env create -f environment.yml
