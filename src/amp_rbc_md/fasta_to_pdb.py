@@ -41,7 +41,8 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         from colabfold.utils import setup_logging
         
         # Logging konfigurieren
-        setup_logging()
+        log_file = Path(out_dir) / "colabfold.log"
+        setup_logging(log_file)
         
         # Sequenz für ColabFold vorbereiten
         # ColabFold erwartet ein spezifisches Format
