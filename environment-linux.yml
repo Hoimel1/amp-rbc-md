@@ -22,7 +22,6 @@ dependencies:
   - isort 
   - pip
   - pip:
-      - martinize2==2.2.0
       # GPU-abhängige Python-Pakete
       - fair-esm[esmfold]>=0.8  # enthält esmfold_v1 + OpenFold-Bridge (CUDA erforderlich)
       - torch==2.3.0  # wird vom openfold-Build via pip wheel mit CUDA-Unterstützung installiert
