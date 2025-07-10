@@ -32,9 +32,10 @@ dependencies:
   - isort
   - pip
   - pip:
-      # FastFold + OpenFold + Deepspeed
-      - "openfold @ git+https://github.com/aqlaboratory/openfold.git@main"
-      - "fastfold @ git+https://github.com/hpcaitech/FastFold.git@main"
+      # FastFold / OpenFold nachträglich installieren, wenn Torch vorhanden
+      # z.B.:
+      # pip install torch==2.3.0+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+      # pip install openfold fastfold
       - deepspeed==0.14.4
       - insane               # Python-Package ersatzweise über pip
       # Unser Projekt selber (editable install wenn innerhalb venv)
