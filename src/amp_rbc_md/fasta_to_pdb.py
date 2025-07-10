@@ -45,9 +45,9 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         setup_logging(log_file)
         
         # Sequenz für ColabFold vorbereiten
-        # ColabFold erwartet ein spezifisches Format
+        # ColabFold erwartet ein spezifisches Format: (name, sequence, template_path)
         job_name = "peptide_prediction"
-        sequences = [sequence]
+        queries = [(job_name, sequence, None)]  # (name, sequence, template_path)
         
         # ColabFold-Batch-Ausführung
         result_dir = Path(out_dir) / "colabfold_results"
@@ -55,12 +55,14 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         
         # Führe ColabFold aus
         batch.run(
-            sequences=sequences,
-            job_name=job_name,
+            queries=queries,
             result_dir=str(result_dir),
-            use_amber=False,  # Schneller ohne AMBER-Refinement
+            num_models=1,  # Anzahl der Modelle
+            is_complex=False,  # Kein Komplex, nur Monomer
+            num_recycles=3,  # Anzahl Recycling-Schritte
+            model_type="auto",  # Automatische Modellauswahl
+            msa_mode="mmseqs2_uniref_env",  # MSA-Modus
             use_templates=False,  # Keine Templates für Peptide
-            custom_msa=None,  # Keine benutzerdefinierten MSA
             pair_mode="unpaired+paired",  # Standard für Monomere
             host_url="https://api.colabfold.com",  # Standard-Server
         )
