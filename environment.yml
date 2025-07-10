@@ -24,4 +24,5 @@ dependencies:
   - pip
   - pip:
       # GPU-spezifische Pakete werden separat installiert
-      - omegaconf 
+      - omegaconf
+      - gmxapi 

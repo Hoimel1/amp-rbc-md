@@ -1,11 +1,11 @@
 #!/bin/bash
-# amp-rbc-md Setup Script für Linux
-# PyTorch 2.3.0+cu121 + nvidia-cudnn-cu12==8.9.2.26 + JAX 0.4.25
-# Ausführung: bash setup.sh
+# amp-rbc-md Setup Script mit gmxapi für Linux
+# PyTorch 2.3.0+cu121 + nvidia-cudnn-cu12==8.9.2.26 + JAX 0.4.25 + gmxapi
+# Ausführung: bash setup-with-gmxapi.sh
 
 set -e
 
-echo "=== AMP-RBC-MD LINUX SETUP ==="
+echo "=== AMP-RBC-MD SETUP MIT GMXAPI ==="
 
 # Prüfe CUDA-Installation
 if ! command -v nvidia-smi &> /dev/null; then
@@ -42,23 +42,39 @@ conda env remove -n amp-rbc-md -y 2>/dev/null || true
 
 # Erstelle neue Umgebung
 echo "Erstelle neue Umgebung..."
-conda env create -f environment.yml
+conda create -n amp-rbc-md python=3.10 -y
 
 # Aktiviere neue Umgebung
 conda activate amp-rbc-md
 
-# Installiere JAX mit korrekter CUDA-Version basierend auf System-CUDA
-echo "Installiere JAX mit CUDA $CUDA_VERSION..."
-if [[ "$CUDA_VERSION" == "12.1" ]]; then
-    echo "Installiere JAX für CUDA 12.1..."
-    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-elif [[ "$CUDA_VERSION" == "12.3" ]]; then
-    echo "Installiere JAX für CUDA 12.3..."
-    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-else
-    echo "Installiere JAX für CUDA 12.x..."
-    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-fi
+# Installiere Basis-Pakete
+echo "Installiere Basis-Pakete..."
+conda install -c conda-forge -c bioconda -y \
+    gromacs=2024 \
+    biopython \
+    click \
+    pyyaml \
+    pandas=1.5.3 \
+    numpy=1.24.3 \
+    tqdm \
+    matplotlib \
+    mlflow \
+    moviepy \
+    rich \
+    pytest \
+    pytest-cov \
+    black \
+    flake8 \
+    mypy \
+    isort
+
+# Installiere gmxapi über pip (bessere Kompatibilität)
+echo "Installiere gmxapi..."
+pip install gmxapi
+
+# Installiere JAX 0.4.25 mit CUDA
+echo "Installiere JAX 0.4.25 mit CUDA..."
+pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 # Installiere PyTorch 2.3.0+cu121
 echo "Installiere PyTorch 2.3.0+cu121..."
@@ -84,7 +100,7 @@ pip install -e .
 echo "Teste Installation..."
 python verify-installation.py
 
-echo "=== SETUP ERFOLGREICH ABGESCHLOSSEN ==="
+echo "=== SETUP MIT GMXAPI ERFOLGREICH ABGESCHLOSSEN ==="
 echo ""
 echo "Nächste Schritte:"
 echo "1. Testen Sie eine Simulation:"
