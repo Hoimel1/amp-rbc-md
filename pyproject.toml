@@ -49,11 +49,13 @@ dev = [
     "flake8>=5.0.0",
     "mypy>=1.0.0",
     "isort>=5.10.0",
+    "pre-commit>=3.4.0",
 ]
 gpu = [
     "torch>=2.3.0",
-    "jax>=0.4.25",
-    "colabfold>=1.5.5",
+    "openfold",
+    "fastfold @ git+https://github.com/hpcaitech/FastFold.git@main",
+    "deepspeed>=0.14.4",
 ]
 
 [project.scripts]
