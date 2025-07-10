@@ -17,18 +17,15 @@ Batch-fähige Martini-3-Simulation roter Blutkörperchen-Peptide (≤10) mit Rep
 git clone https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
-# Automatisches Setup (empfohlen)
-bash setup-fixed.sh
-
-# Oder manuell:
+# Einfaches Setup
 conda env create -f environment.yml
 conda activate amp-rbc-md
-pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-pip install torch==2.3.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-pip install nvidia-cudnn-cu12==8.9.2.26
-pip install colabfold==1.5.5 --no-deps
-pip install absl-py appdirs biopython matplotlib numpy pandas py3Dmol requests tqdm dm-haiku
+
+# Editable install (entwickeln & testen)
 pip install -e .
+
+# Datenbanken für FastFold/OpenFold (einmalig)
+# export OPENFOLD_DATA=/path/to/alphafold_dbs
 ```
 
 ### Verifikation
@@ -51,7 +48,7 @@ amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
 
 Die Insertions-Freie-Energie (ΔG_insert) wird aus Umbrella-Sampling-Fenstern mittels WHAM bestimmt. Ein Bootstrap (N=200) liefert Konfidenzintervalle, die mit heuristischen Schwellen aus `config/judge.yaml` verglichen werden, um toxische Kandidaten zu markieren.
 
-**Strukturvorhersage**: Verwendet ColabFold (AlphaFold2-Implementierung) für State-of-the-Art Protein-Strukturvorhersage.
+**Strukturvorhersage**: Nutzt FastFold/OpenFold (PyTorch-basierte AlphaFold2-Reimplementation) – GPU-beschleunigt ohne JAX-Abhängigkeit.
 
 ## 🐳 Docker
 

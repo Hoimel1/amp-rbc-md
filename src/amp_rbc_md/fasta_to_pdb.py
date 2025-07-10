@@ -1,95 +1,117 @@
 from __future__ import annotations
 
-import random
 from pathlib import Path
-from textwrap import dedent
-from typing import Tuple
+from typing import Literal, Optional
 
 from Bio.Seq import Seq  # type: ignore
 from Bio.SeqRecord import SeqRecord  # type: ignore
 from Bio import SeqIO  # type: ignore
 
-try:
-    from colabfold import batch
-    COLABFOLD_AVAILABLE = True
-except ImportError:
-    COLABFOLD_AVAILABLE = False
-
 from .utils import LOGGER, ensure_dir, set_seed
 
+# Optional ColabFold import
+try:
+    from colabfold import batch  # type: ignore
+    COLABFOLD_AVAILABLE: bool = True
+except ImportError:  # pragma: no cover
+    COLABFOLD_AVAILABLE = False
 
-def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
-    """Konvertiere eine Peptidsequenz in eine PDB-Datei mit ColabFold (AlphaFold).
+# FastFold/OpenFold Wrapper
+try:
+    from .fastfold_wrap import predict as fastfold_predict  # noqa: WPS433
+    FASTFOLD_AVAILABLE: bool = True
+except Exception:  # pragma: no cover
+    FASTFOLD_AVAILABLE = False
 
-    Verwendet ColabFold für State-of-the-Art Strukturvorhersage basierend auf AlphaFold2.
-    """
-    set_seed()
-    out_dir = ensure_dir(out_dir)
-    pdb_path = Path(out_dir) / "model.pdb"
+Engine = Literal["fastfold", "colabfold"]
 
+__all__ = ["fasta_to_pdb", "Engine"]
+
+
+class StructurePredictionError(RuntimeError):
+    """Generischer Fehler der Strukturvorhersage."""
+
+
+def _run_colabfold(sequence: str, out_dir: Path) -> Path:
     if not COLABFOLD_AVAILABLE:
-        raise RuntimeError(
-            "ColabFold ist nicht verfügbar. Bitte installieren Sie es mit:\n"
-            "pip install colabfold[alphafold]"
-        )
+        raise StructurePredictionError("ColabFold nicht installiert.")
 
-    try:
-        LOGGER.info("Verwende ColabFold (AlphaFold2) für State-of-the-Art Strukturvorhersage")
-        
-        # ColabFold für Strukturvorhersage verwenden
-        # ColabFold ist eine optimierte AlphaFold2-Implementierung
-        from colabfold.utils import setup_logging
-        
-        # Logging konfigurieren
-        log_file = Path(out_dir) / "colabfold.log"
-        setup_logging(log_file)
-        
-        # Sequenz für ColabFold vorbereiten
-        # ColabFold erwartet ein spezifisches Format: (name, sequence, template_path)
-        job_name = "peptide_prediction"
-        queries = [(job_name, sequence, None)]  # (name, sequence, template_path)
-        
-        # ColabFold-Batch-Ausführung
-        result_dir = Path(out_dir) / "colabfold_results"
-        result_dir.mkdir(exist_ok=True)
-        
-        # Führe ColabFold aus
-        batch.run(
-            queries=queries,
-            result_dir=str(result_dir),
-            num_models=1,  # Anzahl der Modelle
-            is_complex=False,  # Kein Komplex, nur Monomer
-            num_recycles=3,  # Anzahl Recycling-Schritte
-            model_type="auto",  # Automatische Modellauswahl
-            msa_mode="mmseqs2_uniref_env",  # MSA-Modus
-            use_templates=False,  # Keine Templates für Peptide
-            pair_mode="unpaired+paired",  # Standard für Monomere
-            host_url="https://api.colabfold.com",  # Standard-Server
-        )
-        
-        # Finde die beste PDB-Datei (normalerweise die erste)
-        pdb_files = list(result_dir.glob("*.pdb"))
-        if not pdb_files:
-            raise RuntimeError("ColabFold hat keine PDB-Datei erzeugt")
-        
-        # Kopiere die beste PDB-Datei
-        best_pdb = pdb_files[0]
-        import shutil
-        shutil.copy2(best_pdb, pdb_path)
-        
-        LOGGER.info("ColabFold Struktur unter %s erzeugt", pdb_path)
-        
-    except Exception as e:
-        LOGGER.error("ColabFold fehlgeschlagen: %s", e)
-        raise RuntimeError(f"ColabFold konnte keine Struktur für Sequenz '{sequence}' vorhersagen: {e}")
+    from colabfold.utils import setup_logging  # type: ignore
 
-    # Speichere FASTA parallel, nützlich für Referenz.
-    fasta_path = Path(out_dir) / "sequence.fasta"
-    SeqIO.write(
-        SeqRecord(Seq(sequence), id="peptide", description=""), fasta_path, "fasta"
+    result_dir = out_dir / "colabfold_results"
+    result_dir.mkdir(exist_ok=True)
+
+    setup_logging(result_dir / "colabfold.log")
+
+    LOGGER.info("Starte ColabFold für Strukturvorhersage …")
+    queries = [("peptide", sequence, None)]
+
+    batch.run(
+        queries=queries,
+        result_dir=str(result_dir),
+        num_models=1,
+        is_complex=False,
+        num_recycles=3,
+        model_type="auto",
+        msa_mode="mmseqs2_uniref_env",
+        use_templates=False,
     )
 
+    pdb_files = list(result_dir.glob("*.pdb"))
+    if not pdb_files:
+        raise StructurePredictionError("ColabFold hat keine PDB erzeugt")
+
+    pdb_path = out_dir / "model.pdb"
+    pdb_files[0].rename(pdb_path)
     return pdb_path
 
 
-__all__ = ["fasta_to_pdb"]
+def _run_fastfold(sequence: str, out_dir: Path) -> Path:
+    if not FASTFOLD_AVAILABLE:
+        raise StructurePredictionError("FastFold/OpenFold nicht installiert.")
+
+    return fastfold_predict(sequence, out_dir)
+
+
+def fasta_to_pdb(
+    sequence: str,
+    out_dir: str | Path,
+    *,
+    engine: Engine = "fastfold",
+    db_root: Optional[str | Path] = None,
+) -> Path:
+    """Generiere eine PDB-Datei für *sequence* in *out_dir*.
+
+    Parameters
+    ----------
+    sequence : str
+        Aminosäure-Sequenz.
+    out_dir : str | Path
+        Verzeichnis für Ausgabedateien.
+    engine : {"fastfold", "colabfold"}
+        Backend für Strukturvorhersage.
+    db_root : Path | str | None
+        Wird an FastFold weitergereicht (s. ``OPENFOLD_DATA``).
+    """
+
+    set_seed()
+    out_dir = ensure_dir(out_dir)
+
+    # FASTA parallel ablegen (immer)
+    fasta_path = Path(out_dir) / "sequence.fasta"
+    SeqIO.write(SeqRecord(Seq(sequence), id="peptide", description=""), fasta_path, "fasta")
+
+    if engine == "fastfold":
+        try:
+            return _run_fastfold(sequence, out_dir)
+        except Exception as err:
+            LOGGER.error("FastFold fehlgeschlagen: %s", err)
+            raise StructurePredictionError(err) from err
+    elif engine == "colabfold":
+        try:
+            return _run_colabfold(sequence, out_dir)
+        except Exception as err:
+            LOGGER.error("ColabFold fehlgeschlagen: %s", err)
+            raise StructurePredictionError(err) from err
+    else:  # pragma: no cover
+        raise ValueError(f"Unbekanntes engine='{engine}'")

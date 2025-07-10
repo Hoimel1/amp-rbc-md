@@ -2,19 +2,29 @@ name: amp-rbc-md
 channels:
   - conda-forge
   - bioconda
+  - nvidia
 dependencies:
+  # Core
   - python=3.10
-  - gromacs=2024
-  - biopython
+  - numpy>=1.23,<2.0
+  - pandas>=1.5,<2.0
+  - scipy
   - click
   - pyyaml
-  - pandas=1.5.3
-  - numpy=1.24.3
+  - rich
   - tqdm
   - matplotlib
   - mlflow
   - moviepy
-  - rich
+  # MD-Stack
+  - gromacs=2024          # GPU-fähiges GROMACS
+  - insane                # Membran-Builder
+  - vermouth              # martinize2-Dependency
+  # GPU-Stack
+  - pytorch=2.3.*=cuda121*
+  - pytorch-cuda=12.1     # CUDA-Runtime via conda-forge/nvidia
+  - nvidia-cudnn-cu12=8.9.2
+  # Dev / Tests
   - pytest
   - pytest-cov
   - black
@@ -23,6 +33,9 @@ dependencies:
   - isort
   - pip
   - pip:
-      # GPU-spezifische Pakete werden separat installiert
-      - omegaconf
-      - gmxapi 
+      # FastFold + OpenFold + Deepspeed
+      - "openfold @ git+https://github.com/aqlaboratory/openfold.git@main#egg=openfold&subdirectory=openfold"
+      - "fastfold @ git+https://github.com/hpcaitech/FastFold.git@main"
+      - deepspeed==0.14.4
+      # Unser Projekt selber (editable install wenn innerhalb venv)
+      - -e . 
