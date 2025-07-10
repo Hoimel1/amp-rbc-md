@@ -12,6 +12,8 @@ conda activate amp-rbc-md
 # Linux + GPU (inkl. GROMACS + ColabFold):
 conda env create -f environment-linux.yml
 conda activate amp-rbc-md
+# CUDA-kompatible JAX installieren:
+bash install-jax-cuda.sh
 
 amp-rbc-md run_sim --seq "GLSILGKLL" --n-replica 2 --dry-run
 ```

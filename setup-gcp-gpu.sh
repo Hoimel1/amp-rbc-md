@@ -49,6 +49,10 @@ conda activate amp-rbc-md
 echo "Installiere amp-rbc-md..."
 pip install -e .
 
+# CUDA-kompatible JAX installieren
+echo "Installiere CUDA-kompatible JAX..."
+bash install-jax-cuda.sh
+
 # GPU-Test
 echo "Teste GPU-Zugriff..."
 python -c "
