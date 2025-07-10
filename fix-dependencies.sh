@@ -14,6 +14,10 @@ conda activate amp-rbc-md
 echo "Entferne problematische Pakete..."
 pip uninstall -y numpy pandas tensorflow torch
 
+# Behebe importlib-metadata Konflikt
+echo "Behebe importlib-metadata Konflikt..."
+pip install --upgrade "importlib-metadata>=6.0,<8.8.0"
+
 # Installiere kompatible Versionen
 echo "Installiere kompatible Versionen..."
 conda install -y numpy=1.24.3 pandas=1.5.3

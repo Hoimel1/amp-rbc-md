@@ -10,6 +10,7 @@ Die Pipeline hat mehrere Abhängigkeitskonflikte:
 - TensorFlow-Linux-Installationsprobleme
 - JAX-CUDA-Installationsprobleme
 - ColabFold-Abhängigkeitskonflikte
+- importlib-metadata Versionskonflikte
 
 ## Lösung
 
@@ -49,14 +50,21 @@ conda activate amp-rbc-md
 bash fix-tensorflow-linux.sh
 ```
 
-#### Schritt 4: JAX-CUDA installieren
+#### Schritt 4: importlib-metadata Konflikt beheben
+
+```bash
+conda activate amp-rbc-md
+bash fix-importlib-metadata.sh
+```
+
+#### Schritt 5: JAX-CUDA installieren
 
 ```bash
 conda activate amp-rbc-md
 bash install-jax-cuda.sh
 ```
 
-#### Schritt 5: ColabFold neu installieren
+#### Schritt 6: ColabFold neu installieren
 
 ```bash
 conda activate amp-rbc-md
@@ -96,7 +104,11 @@ NumPy: 1.24.3
 ### Problem: "importlib-metadata" Konflikt
 
 ```bash
-pip install --upgrade importlib-metadata
+# Spezifische Version installieren
+pip install --upgrade "importlib-metadata>=6.0,<8.8.0"
+
+# Oder das spezielle Skript verwenden
+bash fix-importlib-metadata.sh
 ```
 
 ### Problem: CUDA-Bibliotheken Konflikt
