@@ -24,10 +24,6 @@ dependencies:
   - pip
   - pip:
       # GPU-abhängige Python-Pakete
-      - colabfold>=1.5.5  # AlphaFold2-Implementierung für Strukturvorhersage
-      - tensorflow==2.13.1  # TensorFlow für Linux mit CUDA-Unterstützung
+      - colabfold==1.5.5  # AlphaFold2-Implementierung für Strukturvorhersage
       - omegaconf
-      # Kompatible JAX-Versionen für ColabFold mit CUDA-Unterstützung
-      - "jax>=0.6.0"
-      - "jaxlib>=0.6.0"
-      - "chex==0.1.7" 
+      # PyTorch wird separat installiert um Konflikte zu vermeiden 
