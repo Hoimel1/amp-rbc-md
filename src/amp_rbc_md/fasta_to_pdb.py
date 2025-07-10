@@ -18,42 +18,20 @@ except ImportError:
 from .utils import LOGGER, ensure_dir, set_seed
 
 
-def create_dummy_pdb(sequence: str, pdb_path: Path) -> None:
-    """Erstelle eine einfache PDB-Struktur als Fallback."""
-    LOGGER.warning("Verwende Dummy-PDB-Struktur als Fallback")
-    
-    # Einfache Helix-Struktur mit CA-Atomen
-    lines = ["REMARK  Dummy PDB structure for peptide"]
-    for i, aa in enumerate(sequence, 1):
-        # Einfache Helix-Koordinaten (ca. 3.8Å pro Residue, 100° Rotation)
-        x = 0.0
-        y = 0.0
-        z = (i - 1) * 3.8  # Helix-Achse entlang Z
-        lines.append(f"ATOM  {i:5d}  CA  {aa} A{i:4d}    {x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00           C")
-    
-    lines.append("END")
-    pdb_path.write_text("\n".join(lines))
-
-
 def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
     """Konvertiere eine Peptidsequenz in eine PDB-Datei mit ColabFold (AlphaFold).
 
     Verwendet ColabFold für State-of-the-Art Strukturvorhersage basierend auf AlphaFold2.
-    Falls ColabFold fehlschlägt, wird eine Dummy-Struktur erstellt.
     """
     set_seed()
     out_dir = ensure_dir(out_dir)
     pdb_path = Path(out_dir) / "model.pdb"
 
     if not COLABFOLD_AVAILABLE:
-        LOGGER.warning("ColabFold nicht verfügbar, verwende Dummy-Struktur")
-        create_dummy_pdb(sequence, pdb_path)
-        # Speichere FASTA parallel
-        fasta_path = Path(out_dir) / "sequence.fasta"
-        SeqIO.write(
-            SeqRecord(Seq(sequence), id="peptide", description=""), fasta_path, "fasta"
+        raise RuntimeError(
+            "ColabFold ist nicht verfügbar. Bitte installieren Sie es mit:\n"
+            "pip install colabfold[alphafold]"
         )
-        return pdb_path
 
     try:
         LOGGER.info("Verwende ColabFold (AlphaFold2) für State-of-the-Art Strukturvorhersage")
@@ -103,8 +81,7 @@ def fasta_to_pdb(sequence: str, out_dir: str | Path) -> Path:
         
     except Exception as e:
         LOGGER.error("ColabFold fehlgeschlagen: %s", e)
-        LOGGER.warning("Verwende Dummy-Struktur als Fallback")
-        create_dummy_pdb(sequence, pdb_path)
+        raise RuntimeError(f"ColabFold konnte keine Struktur für Sequenz '{sequence}' vorhersagen: {e}")
 
     # Speichere FASTA parallel, nützlich für Referenz.
     fasta_path = Path(out_dir) / "sequence.fasta"
