@@ -7,6 +7,7 @@ Diese Anleitung zeigt, wie du alle Abhängigkeitskonflikte in der amp-rbc-md Pip
 Die Pipeline hat mehrere Abhängigkeitskonflikte:
 - NumPy/Pandas-Kompatibilitätsprobleme
 - PyTorch-CUDA-Versionskonflikte
+- TensorFlow-Linux-Installationsprobleme
 - JAX-CUDA-Installationsprobleme
 - ColabFold-Abhängigkeitskonflikte
 
@@ -41,14 +42,21 @@ conda activate amp-rbc-md
 bash fix-pytorch-cuda.sh
 ```
 
-#### Schritt 3: JAX-CUDA installieren
+#### Schritt 3: TensorFlow-Linux installieren
+
+```bash
+conda activate amp-rbc-md
+bash fix-tensorflow-linux.sh
+```
+
+#### Schritt 4: JAX-CUDA installieren
 
 ```bash
 conda activate amp-rbc-md
 bash install-jax-cuda.sh
 ```
 
-#### Schritt 4: ColabFold neu installieren
+#### Schritt 5: ColabFold neu installieren
 
 ```bash
 conda activate amp-rbc-md
@@ -61,10 +69,11 @@ Nach der Behebung solltest du folgende Ausgabe sehen:
 
 ```bash
 python -c "
-import jax, jaxlib, torch, colabfold, pandas, numpy
+import jax, jaxlib, torch, tensorflow as tf, colabfold, pandas, numpy
 print('=== VERIFIKATION ===')
 print(f'JAX: {jax.__version__} (CUDA: {len([d for d in jax.devices() if d.platform == \"gpu\"]) > 0})')
 print(f'PyTorch: {torch.__version__} (CUDA: {torch.cuda.is_available()})')
+print(f'TensorFlow: {tf.__version__} (CUDA: {len(tf.config.list_physical_devices(\"GPU\")) > 0})')
 print(f'ColabFold: verfügbar ({hasattr(colabfold, \"batch\")})')
 print(f'Pandas: {pandas.__version__}')
 print(f'NumPy: {numpy.__version__}')
@@ -76,6 +85,7 @@ Erwartete Ausgabe:
 === VERIFIKATION ===
 JAX: 0.4.25 (CUDA: True)
 PyTorch: 2.3.0+cu121 (CUDA: True)
+TensorFlow: 2.13.1 (CUDA: True)
 ColabFold: verfügbar (True)
 Pandas: 1.5.3
 NumPy: 1.24.3

@@ -12,7 +12,7 @@ conda activate amp-rbc-md
 
 # Entferne problematische Pakete
 echo "Entferne problematische Pakete..."
-pip uninstall -y numpy pandas tensorflow-macos torch
+pip uninstall -y numpy pandas tensorflow torch
 
 # Installiere kompatible Versionen
 echo "Installiere kompatible Versionen..."
@@ -21,6 +21,10 @@ conda install -y numpy=1.24.3 pandas=1.5.3
 # Installiere kompatible PyTorch-Version
 echo "Installiere kompatible PyTorch-Version..."
 pip install torch==2.3.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Installiere TensorFlow für Linux mit CUDA
+echo "Installiere TensorFlow für Linux..."
+pip install tensorflow==2.13.1
 
 # JAX-CUDA installieren
 echo "Installiere JAX-CUDA..."
@@ -39,6 +43,7 @@ import colabfold
 import pandas
 import numpy
 import torch
+import tensorflow as tf
 
 print('=== INSTALLATION ERFOLGREICH ===')
 print(f'JAX Version: {jax.__version__}')
@@ -50,6 +55,10 @@ print(f'PyTorch CUDA verfügbar: {torch.cuda.is_available()}')
 if torch.cuda.is_available():
     print(f'PyTorch CUDA Version: {torch.version.cuda}')
     print(f'PyTorch GPU: {torch.cuda.get_device_name(0)}')
+print(f'TensorFlow Version: {tf.__version__}')
+print(f'TensorFlow CUDA verfügbar: {len(tf.config.list_physical_devices(\"GPU\")) > 0}')
+if len(tf.config.list_physical_devices(\"GPU\")) > 0:
+    print(f'TensorFlow GPUs: {tf.config.list_physical_devices(\"GPU\")}')
 print(f'ColabFold verfügbar: {hasattr(colabfold, \"batch\")}')
 print(f'Pandas Version: {pandas.__version__}')
 print(f'NumPy Version: {numpy.__version__}')
