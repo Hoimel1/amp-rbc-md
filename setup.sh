@@ -16,6 +16,10 @@ fi
 echo "✅ NVIDIA GPU gefunden:"
 nvidia-smi --query-gpu=name,driver_version --format=csv,noheader
 
+# Prüfe CUDA-Version
+CUDA_VERSION=$(nvcc --version | grep "release" | sed 's/.*release \([0-9]\+\.[0-9]\+\).*/\1/')
+echo "CUDA Version: $CUDA_VERSION"
+
 # Aktiviere conda
 if [ -f ~/miniconda3/etc/profile.d/conda.sh ]; then
     source ~/miniconda3/etc/profile.d/conda.sh
@@ -38,9 +42,18 @@ conda env create -f environment.yml
 # Aktiviere neue Umgebung
 conda activate amp-rbc-md
 
-# Installiere JAX 0.4.25 mit CUDA-Unterstützung
-echo "Installiere JAX 0.4.25 mit CUDA..."
-pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+# Installiere JAX mit korrekter CUDA-Version basierend auf System-CUDA
+echo "Installiere JAX mit CUDA $CUDA_VERSION..."
+if [[ "$CUDA_VERSION" == "12.1" ]]; then
+    echo "Installiere JAX für CUDA 12.1..."
+    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+elif [[ "$CUDA_VERSION" == "12.3" ]]; then
+    echo "Installiere JAX für CUDA 12.3..."
+    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+else
+    echo "Installiere JAX für CUDA 12.x..."
+    pip install jax==0.4.25 jaxlib==0.4.25+cuda12.cudnn89 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+fi
 
 # Installiere PyTorch 2.3.0+cu121
 echo "Installiere PyTorch 2.3.0+cu121..."

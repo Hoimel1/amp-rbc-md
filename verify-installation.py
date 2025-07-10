@@ -71,15 +71,25 @@ def test_colabfold():
     print("\n=== COLABFOLD ===")
     try:
         import colabfold
-        if hasattr(colabfold, 'batch'):
-            print("✅ ColabFold batch: Verfügbar")
-        else:
-            print("❌ ColabFold batch: Nicht verfügbar")
+        print("✅ ColabFold: Import erfolgreich")
         
-        if hasattr(colabfold, 'download_alphafold_params'):
-            print("✅ ColabFold download_alphafold_params: Verfügbar")
-        else:
-            print("❌ ColabFold download_alphafold_params: Nicht verfügbar")
+        # Teste batch-Funktion
+        try:
+            if hasattr(colabfold, 'batch'):
+                print("✅ ColabFold batch: Verfügbar")
+            else:
+                print("❌ ColabFold batch: Nicht verfügbar")
+        except Exception as e:
+            print(f"⚠️  ColabFold batch Test: {e}")
+        
+        # Teste download_alphafold_params
+        try:
+            if hasattr(colabfold, 'download_alphafold_params'):
+                print("✅ ColabFold download_alphafold_params: Verfügbar")
+            else:
+                print("❌ ColabFold download_alphafold_params: Nicht verfügbar")
+        except Exception as e:
+            print(f"⚠️  ColabFold download_alphafold_params Test: {e}")
             
         return True
     except Exception as e:

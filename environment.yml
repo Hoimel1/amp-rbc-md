@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python=3.10
   - gromacs=2024
+  - gmxapi
   - biopython
   - click
   - pyyaml
