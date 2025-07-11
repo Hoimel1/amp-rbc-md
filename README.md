@@ -13,84 +13,71 @@ Eine vollständige Pipeline zur Simulation von antimikrobiellen Peptiden und der
 ### Voraussetzungen
 
 - **Ubuntu 22.04** (empfohlen)
-- **NVIDIA GPU** mit CUDA 12.1 Support
+- **NVIDIA GPU** mit CUDA 11.5+ Support
 - **Miniconda/Anaconda**
 
 ### Installation
-
-#### Option 1: Schritt-für-Schritt Installation (empfohlen) ⭐
 
 ```bash
 # 1. Repository klonen (mit Submodulen)
 git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
-# 2. Folge der detaillierten Anleitung
-docs/INSTALLATION_STEP_BY_STEP.md
+# 2. Conda-Umgebung erstellen (schlank, nur FastFold)
+conda env create -f environment.yml
 
-# 3. Teste nach jedem Schritt
-./test-installation.sh
-```
+# 3. Umgebung aktivieren
+conda activate amp-rbc-md
 
-**Vorteile:**
-- ✅ **Kontrolle über jeden Schritt**
-- ✅ **Einfaches Troubleshooting**
-- ✅ **Verständnis der Abhängigkeiten**
-- ✅ **Flexibel für verschiedene Systeme**
+# 4. FastFold-Parameter herunterladen
+mkdir -p $HOME/.fastfold
+cd $HOME/.fastfold
+wget https://github.com/hpcaitech/FastFold/releases/download/v0.2.0/fastfold_params.tar.gz
+tar -xzf fastfold_params.tar.gz
+cd -
 
-#### Option 2: Automatische Setup-Skripte
+# 5. Umgebungsvariablen setzen
+echo 'export FASTFOLD_SKIP_TEMPLATES=1' >> ~/.zshrc
+echo 'export FASTFOLD_NO_MSA=1' >> ~/.zshrc
+echo 'export FASTFOLD_PARAMS_PATH=$HOME/.fastfold/fastfold_params' >> ~/.zshrc
+source ~/.zshrc
 
-**Lightweight Installation (400GB VM):**
-```bash
-./setup-lightweight.sh
-```
-
-**Ultra-Fast Setup (falls Setup hängt):**
-```bash
-./setup-ultra-fast.sh
-```
-
-**Vollständige Installation (2TB+ VM):**
-```bash
-./setup.sh
+# 6. Testen
+amp-rbc-md --seq GLSILGKLL --dry-run
 ```
 
 ### Erste Simulation
 
 ```bash
-# Lightweight (ColabFold-Batch)
-amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run
-
-# Vollständig (AlphaFold)
-amp-rbc-md --seq GLSILGKLL --dry-run
-
-# Echte Simulation
+# Einzel-Simulation
 amp-rbc-md --seq GLSILGKLL --n-replica 1 --profile default -j 1
+
+# Batch-Simulation
+amp-rbc-md -f examples/batch.fasta --n-replica 1 --profile default -j 3
 ```
 
 ## 📋 Features
 
-- **Strukturvorhersage**: Multiple Backends (ColabFold, FastFold, ESMFold, AlphaFold)
+- **Strukturvorhersage**: FastFold ohne MSA (schnell und effizient)
 - **Coarse-Grained MD**: Martini-3 Kraftfeld für effiziente Simulationen
 - **GPU-Beschleunigung**: Vollständige CUDA-Unterstützung
 - **Batch-Verarbeitung**: Parallele Verarbeitung mehrerer Sequenzen
 - **Automatisierte Pipeline**: Von FASTA zu MD-Trajektorien in einem Schritt
-- **Flexible Installation**: Unterstützt 400GB (Lightweight) und 2TB+ (Vollständig)
+- **Schlanke Installation**: Nur ~5GB Speicherplatz benötigt
 
 ## 🏗️ Architektur
 
 ```
 amp-rbc-md/
 ├── src/amp_rbc_md/          # Hauptcode
-│   ├── fasta_to_pdb.py      # Strukturvorhersage (Multi-Backend)
+│   ├── fasta_to_pdb.py      # Strukturvorhersage (FastFold)
 │   ├── martinize_wrap.py    # CG-Konvertierung (Martini-3)
 │   ├── build_membrane.py    # Membran-Aufbau
 │   ├── gen_mdp.py          # GROMACS-Parameter
 │   ├── gmx_runner.py       # GROMACS-Ausführung
 │   └── analyse.py          # Trajektorien-Analyse
 ├── external/                # Git-Submodule
-│   ├── fastfold/           # FastFold (AlphaFold2-Implementation)
-│   └── openfold/           # OpenFold (Alternative)
+│   └── fastfold/           # FastFold (AlphaFold2-Implementation)
 ├── config/                 # Konfigurationsdateien
 ├── mdp_templates/          # GROMACS-Templates
 └── workflow/               # Snakemake-Workflow (HPC)
@@ -98,26 +85,20 @@ amp-rbc-md/
 
 ## 📊 Speicherplatz-Anforderungen
 
-| Installation | Speicherplatz | Backend | Qualität | Empfehlung |
-|--------------|---------------|---------|----------|------------|
-| **Lightweight** | < 5 GB | ColabFold-Batch | Sehr gut | ✅ **400GB VM** |
-| **FastFold No-MSA** | < 5 GB | FastFold | Sehr gut | ✅ **400GB VM** |
-| **ESMFold** | < 3 GB | ESMFold | Gut | ✅ **Kurze Peptide** |
-| **Vollständig** | 2TB+ | AlphaFold | Beste | ✅ **2TB+ VM** |
+| Komponente | Speicherplatz | Beschreibung |
+|------------|---------------|--------------|
+| **FastFold-Parameter** | ~3.6 GB | AlphaFold2-Parameter |
+| **Conda-Umgebung** | ~2 GB | Python-Pakete |
+| **Repository + Code** | ~1 GB | Quellcode |
+| **Gesamt** | **~6.6 GB** | Vollständige Installation |
 
 ## 🔧 Installation-Optionen
 
-### Lightweight Installation (400GB VM) - Empfohlen
-- **Speicherplatz**: < 5 GB
-- **Backend**: ColabFold-Batch mit Remote-MMSeqs2
-- **Qualität**: Sehr gut für Peptide
-- **Vorteil**: Sofort einsatzbereit, keine lokalen DBs
-
-### Vollständige Installation (2TB+ VM)
-- **Speicherplatz**: 2TB+
-- **Backend**: AlphaFold mit allen MSA-Datenbanken
-- **Qualität**: Beste Vorhersagequalität
-- **Vorteil**: Offline-fähig, maximale Qualität
+### Standard Installation (empfohlen)
+- **Speicherplatz**: ~6.6 GB
+- **Backend**: FastFold ohne MSA
+- **Qualität**: Sehr gut für Peptide bis ~50 Aminosäuren
+- **Vorteil**: Schnell, schlank, offline-fähig
 
 ### Docker Installation
 ```bash
@@ -132,31 +113,24 @@ snakemake --profile workflow/profile/slurm -j 64
 ## 📖 Dokumentation
 
 - [Installation Guide](docs/INSTALLATION.md) - Detaillierte Installationsanleitung
-- [Optimization Guide](docs/OPTIMIZATION.md) - Speicherplatz-Optimierung & Backends
 - [Tutorial](docs/TUTORIAL.md) - Schritt-für-Schritt Tutorial
 - [API Documentation](docs/API.md) - Code-Dokumentation
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Häufige Probleme
 
 ## 🎯 Beispiele
 
-### Lightweight (ColabFold-Batch)
+### Einzel-Sequenz
 ```bash
-# Einzel-Sequenz
-amp-rbc-md --seq GLSILGKLL --backend colabfold --n-replica 3 --profile default -j 3
-
-# Batch-Verarbeitung
-amp-rbc-md -f examples/batch.fasta --backend colabfold --n-replica 1 --profile default -j 4
-
 # Dry-Run (Test)
-amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run
+amp-rbc-md --seq GLSILGKLL --dry-run
+
+# Echte Simulation
+amp-rbc-md --seq GLSILGKLL --n-replica 3 --profile default -j 3
 ```
 
-### Vollständig (AlphaFold)
+### Batch-Verarbeitung
 ```bash
-# Einzel-Sequenz
-amp-rbc-md --seq GLSILGKLL --n-replica 3 --profile default -j 3
-
-# Batch-Verarbeitung
+# Batch-Simulation
 amp-rbc-md -f examples/batch.fasta --n-replica 1 --profile default -j 4
 ```
 
@@ -174,9 +148,7 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Da
 
 ## 🙏 Danksagungen
 
-- **AlphaFold2**: DeepMind für die revolutionäre Strukturvorhersage
-- **ColabFold**: Sergey Ovchinnikov für die optimierte Implementation
-- **FastFold**: NVIDIA für die GPU-optimierte Implementation
+- **FastFold**: NVIDIA für die GPU-optimierte AlphaFold2-Implementation
 - **Martini**: Marrink Lab für das Coarse-Grained Kraftfeld
 - **GROMACS**: GROMACS Development Team für die MD-Software
 
