@@ -15,16 +15,11 @@ dependencies:
   - matplotlib
   
   # MD-Stack (nur das Nötigste)
-  - gromacs=2024.5
   - vermouth
   
   # Trajektorien-Analyse
   - mdtraj
   - mdanalysis
-  
-  # PyTorch (gemäß INSTALLATION_STEP_BY_STEP.md)
-  - pytorch=2.5.1
-  - pytorch-cuda=12.1
   
   # FastFold Dependencies
   - dm-tree
@@ -33,5 +28,4 @@ dependencies:
   # pip packages
   - pip
   - pip:
-    - -e external/fastfold
     - -e . 
