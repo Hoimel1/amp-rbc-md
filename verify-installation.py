@@ -4,9 +4,22 @@ AMP-RBC-MD Installations-Verifikation
 Prüft alle kritischen Module und Abhängigkeiten
 """
 
+# SPDX-License-Identifier: MIT
+
+"""AMP-RBC-MD Installations-Verifikation (modernisiert)
+
+Nutzung:
+    python verify-installation.py --engine fastfold
+
+Unterstützte Engines:
+    fastfold  (Default) – benötigt torch, openfold, fastfold, deepspeed
+    colabfold – benötigt jax, colabfold
+"""
+
 import sys
 import subprocess
 from pathlib import Path
+import argparse
 
 def check_module(module_name, version_check=None):
     """Prüfe ob ein Modul verfügbar ist."""
@@ -148,64 +161,76 @@ def check_cudnn():
         print("❌ nvidia-cudnn-cu12: Nicht installiert")
         return False
 
-def main():
-    """Hauptfunktion für Verifikation."""
+def main() -> None:  # noqa: D401
+    """Starte die Verifikations-Checks."""
+
+    parser = argparse.ArgumentParser(description="Verifiziere AMP-RBC-MD-Installation")
+    parser.add_argument(
+        "--engine",
+        choices=["fastfold", "colabfold"],
+        default="fastfold",
+        help="Vorhersage-Engine, für die die Umgebung geprüft wird (default: fastfold)",
+    )
+
+    args = parser.parse_args()
+
+    engine = args.engine.lower()
+
     print("=== AMP-RBC-MD INSTALLATIONS-VERIFIKATION ===")
-    
+    print(f"Engine: {engine}")
+
     # Python-Version
     print(f"Python Version: {sys.version}")
     print()
-    
-    # Kritische Module
-    print("=== KRITISCHE MODULE ===")
-    jax_ok = check_module("jax")
-    jaxlib_ok = check_module("jaxlib")
-    torch_ok = check_module("torch")
-    colabfold_ok = check_colabfold()
+
+    # Allgemeine Basismodule
+    print("=== GRUNDMODULE ===")
     pandas_ok = check_module("pandas")
     numpy_ok = check_module("numpy")
     gromacs_ok = check_gromacs()
-    
-    print()
-    print("=== CUDA-UNTERSTÜTZUNG ===")
-    cuda_ok = check_cuda_versions()
-    jax_cuda_ok = check_jax_cuda()
-    
-    print()
-    print("=== JAX LINEAR_UTIL ===")
-    linear_util_ok = check_linear_util()
-    
-    print()
-    print("=== COLABFOLD ===")
-    colabfold_ok = check_colabfold()
-    
-    print()
-    print("=== CUDNN ===")
-    cudnn_ok = check_cudnn()
-    
-    print()
-    print("=== AMP-RBC-MD ===")
+
+    # Enginespezifische Prüfungen
+    if engine == "fastfold":
+        print("\n=== FASTFOLD / OPENFOLD STACK ===")
+        torch_ok = check_module("torch")
+        cuda_ok = check_cuda_versions()  # nutzt torch
+        deepspeed_ok = check_module("deepspeed")
+        openfold_ok = check_module("openfold")
+        fastfold_ok = check_module("fastfold")
+
+        engine_ok = all([torch_ok, cuda_ok, deepspeed_ok, openfold_ok, fastfold_ok])
+
+    elif engine == "colabfold":
+        print("\n=== COLABFOLD / JAX STACK ===")
+        jax_ok = check_module("jax")
+        jaxlib_ok = check_module("jaxlib")
+        jax_cuda_ok = check_jax_cuda()
+        linear_util_ok = check_linear_util()
+        colabfold_ok = check_colabfold()
+
+        engine_ok = all([jax_ok, jaxlib_ok, jax_cuda_ok, linear_util_ok, colabfold_ok])
+
+    else:  # Fallback – sollte nie erreicht werden, argparse fängt falsch ab
+        engine_ok = False
+
+    # Projekt-Import & CLI-Check
+    print("\n=== AMP-RBC-MD ===")
     amp_ok = check_amp_rbc_md()
-    
-    print()
-    print("=== ZUSAMMENFASSUNG ===")
-    
-    all_ok = all([
-        jax_ok, jaxlib_ok, torch_ok, pandas_ok, numpy_ok, 
-        cuda_ok, cudnn_ok, amp_ok
-    ])
-    
+
+    print("\n=== ZUSAMMENFASSUNG ===")
+    all_ok = all([pandas_ok, numpy_ok, gromacs_ok, engine_ok, amp_ok])
+
     if all_ok:
-        print("✅ Alle kritischen Module funktionieren")
+        print("✅ Alle kritischen Module funktionieren – Installation sieht gut aus!")
     else:
-        print("❌ Einige Module fehlen oder haben Probleme")
-        print("💡 Führen Sie 'bash setup-fixed.sh' aus")
-    
-    print()
-    print("=== NÄCHSTE SCHRITTE ===")
-    print("1. Testen Sie eine Simulation:")
+        print("❌ Einige Module fehlen oder haben Probleme.")
+        print("💡 Bitte README & TROUBLESHOOTING.md prüfen und fehlende Abhängigkeiten installieren.")
+
+    # Tipps
+    print("\n=== WEITERMACHEN ===")
+    print("Beispiel-Dry-Run:")
     print("   amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run")
-    print("2. Führen Sie eine echte Simulation aus:")
+    print("Echte Simulation:")
     print("   amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1")
 
 if __name__ == "__main__":
