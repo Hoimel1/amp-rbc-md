@@ -17,7 +17,9 @@ CONSOLE = Console()
 
 
 @click.command("run_sim")
+# Eingabearten: Sequenz, FASTA oder bereits gefaltetes PDB
 @click.option("--seq", "sequence", type=str, help="Peptidsequenz (FASTA, 1-Letter)")
+@click.option("--pdb", "pdb_file", type=click.Path(exists=True, dir_okay=False), help="Pfad zu bereits gefalteter PDB-Datei")
 @click.option(
     "-f",
     "--fasta",
@@ -39,6 +41,7 @@ CONSOLE = Console()
 def run_sim(
     sequence: Optional[str],
     fasta_file: Optional[str],
+    pdb_file: Optional[str],
     profile: str,
     n_replica: int,
     prod_time: str,
@@ -49,12 +52,15 @@ def run_sim(
 ) -> None:  # noqa: D401
     """Führe komplette Pipeline für 1 Sequenz oder FASTA-Batch aus."""
 
-    if not sequence and not fasta_file:
-        CONSOLE.print("[red]Fehler: --seq oder --fasta erforderlich.")
+    if sum(bool(x) for x in (sequence, fasta_file, pdb_file)) != 1:
+        CONSOLE.print("[red]Fehler: Genau einer der Parameter --seq, --fasta oder --pdb muss angegeben werden.")
         sys.exit(1)
 
     seqs: list[str]
-    if sequence:
+    if pdb_file:
+        # PDB direkt simulieren, Sequenz-Hash aus Dateinamen ableiten
+        seqs = []
+    elif sequence:
         seqs = [sequence]
     else:
         assert fasta_file is not None  # für mypy
@@ -83,7 +89,10 @@ def run_sim(
         if resume and (rep_dir / "report.csv").exists():
             return None  # Skip
 
-        pdb_path = fasta_to_pdb.fasta_to_pdb(seq, base_dir / "01_pdb")
+        if pdb_file:
+            pdb_path = Path(pdb_file).resolve()
+        else:
+            pdb_path = fasta_to_pdb.fasta_to_pdb(seq, base_dir / "01_pdb")
         cg_gro, _top = martinize(pdb_path, base_dir / "02_cg")
         system_gro = build_membrane.build(profile, cg_gro, base_dir / "03_system")
 
