@@ -39,13 +39,14 @@ class FastFoldError(RuntimeError):
 def _find_fastfold_script() -> list[str]:
     """Ermittle Aufruf für FastFold-Inferenz.
 
-    Bevorzugt FastFold direkt, Fallback: OpenFold falls verfügbar.
+    Bevorzugt FastFold inference.py, Fallback: OpenFold falls verfügbar.
     """
 
     # Prüfe, ob fastfold als Python-Modul importierbar ist
     try:
         import importlib
         importlib.import_module("fastfold")
+        # FastFold hat ein inference.py Skript
         return ["python", "-m", "fastfold.inference"]
     except ModuleNotFoundError:
         pass
@@ -124,6 +125,10 @@ def predict(
         str(mmcif_dir),
         "--output_dir",
         str(out_dir),
+        "--gpus",
+        "1",  # Single GPU für jetzt
+        "--enable_workflow",
+        "--inplace",
     ]
 
     # Häufig benötigte Datenbanken
