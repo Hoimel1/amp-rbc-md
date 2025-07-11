@@ -18,38 +18,42 @@ Eine vollständige Pipeline zur Simulation von antimikrobiellen Peptiden und der
 
 ### Installation
 
-#### Option 1: Lightweight Installation (400GB VM) - Empfohlen ⭐
+#### Option 1: Schritt-für-Schritt Installation (empfohlen) ⭐
 
 ```bash
 # 1. Repository klonen (mit Submodulen)
 git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
-# 2. Lightweight Setup ausführen (< 5 GB)
+# 2. Folge der detaillierten Anleitung
+docs/INSTALLATION_STEP_BY_STEP.md
+
+# 3. Teste nach jedem Schritt
+./test-installation.sh
+```
+
+**Vorteile:**
+- ✅ **Kontrolle über jeden Schritt**
+- ✅ **Einfaches Troubleshooting**
+- ✅ **Verständnis der Abhängigkeiten**
+- ✅ **Flexibel für verschiedene Systeme**
+
+#### Option 2: Automatische Setup-Skripte
+
+**Lightweight Installation (400GB VM):**
+```bash
 ./setup-lightweight.sh
 ```
 
-**Vorteile:**
-- ✅ **< 5 GB Speicherplatz** (nur AlphaFold-Parameter)
-- ✅ **ColabFold-Batch** mit Remote-MMSeqs2
-- ✅ **Keine lokalen MSA-Datenbanken** nötig
-- ✅ **Sofort einsatzbereit**
-
-#### Option 2: Vollständige Installation (2TB+ VM)
-
+**Ultra-Fast Setup (falls Setup hängt):**
 ```bash
-# 1. Repository klonen (mit Submodulen)
-git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
-cd amp-rbc-md
-
-# 2. Vollständiges Setup ausführen
-./setup.sh
+./setup-ultra-fast.sh
 ```
 
-**Vorteile:**
-- ✅ **Beste Vorhersagequalität**
-- ✅ **Alle AlphaFold-Datenbanken**
-- ✅ **Offline-fähig**
+**Vollständige Installation (2TB+ VM):**
+```bash
+./setup.sh
+```
 
 ### Erste Simulation
 
