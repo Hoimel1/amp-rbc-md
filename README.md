@@ -15,10 +15,9 @@ Eine vollständige Pipeline zur Simulation von antimikrobiellen Peptiden und der
 - **Ubuntu 22.04** (empfohlen)
 - **NVIDIA GPU** mit CUDA 12.1 Support
 - **Miniconda/Anaconda**
+- **Mindestens 2 TB freier Speicherplatz** (für alle Datenbanken)
 
 ### Installation
-
-#### Option 1: Vollständige Installation (2TB+ Speicherplatz) - Beste Qualität
 
 ```bash
 # 1. Repository klonen (mit Submodulen)
@@ -27,20 +26,6 @@ cd amp-rbc-md
 
 # 2. Setup-Skript ausführen
 ./setup.sh
-```
-
-#### Option 2: Minimale Installation (400GB Speicherplatz) - Funktionsfähig
-
-```bash
-# 1. Repository klonen (mit Submodulen)
-git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
-cd amp-rbc-md
-
-# 2. Minimales Setup ausführen
-./setup-minimal.sh
-
-# 3. Minimale Datenbanken herunterladen
-./download-minimal-dbs.sh
 ```
 
 Das Setup-Skript installiert automatisch:
@@ -52,20 +37,13 @@ Das Setup-Skript installiert automatisch:
 
 ### Datenbanken herunterladen
 
-#### Vollständige Datenbanken (~2TB)
 ```bash
 # Nach der Installation
 cd external/fastfold
 ./scripts/download_all_data.sh $HOME/alphafold_dbs/
 ```
 
-#### Minimale Datenbanken (~300GB)
-```bash
-# Nach der Installation
-./download-minimal-dbs.sh
-```
-
-**Hinweis:** Der Download dauert mehrere Stunden. Verwende tmux für Hintergrund-Download: `tmux new-session -d './download-minimal-dbs.sh'`
+**Hinweis:** Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
 
 ### Erste Simulation
 
@@ -84,7 +62,6 @@ amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
 - **GPU-Beschleunigung**: Vollständige CUDA-Unterstützung
 - **Batch-Verarbeitung**: Parallele Verarbeitung mehrerer Sequenzen
 - **Automatisierte Pipeline**: Von FASTA zu MD-Trajektorien in einem Schritt
-- **Flexible Installation**: Unterstützt sowohl 2TB+ (vollständig) als auch 400GB (minimal) Setups
 
 ## 🏗️ Architektur
 
@@ -105,14 +82,6 @@ amp-rbc-md/
 └── workflow/               # Snakemake-Workflow (HPC)
 ```
 
-## 📊 Speicherplatz-Anforderungen
-
-| Installation | Speicherplatz | Qualität | Verwendung |
-|--------------|---------------|----------|------------|
-| **Vollständig** | 2TB+ | Beste | Produktion, Forschung |
-| **Minimal** | 400GB | Gut | Entwicklung, Tests |
-| **Docker** | 2TB+ | Beste | Isolierte Umgebung |
-
 ## 🔧 Installation-Optionen
 
 ### Vollständige Installation (Empfohlen)
@@ -120,12 +89,6 @@ amp-rbc-md/
 - **Qualität**: Beste Strukturvorhersage
 - **Verwendung**: Produktion, Forschung
 - **Datenbanken**: Alle AlphaFold-Datenbanken
-
-### Minimale Installation (400GB VM)
-- **Speicherplatz**: 400GB
-- **Qualität**: Gute Strukturvorhersage
-- **Verwendung**: Entwicklung, Tests
-- **Datenbanken**: Reduzierte Datenbanken (Small BFD, etc.)
 
 ### Docker Installation
 ```bash

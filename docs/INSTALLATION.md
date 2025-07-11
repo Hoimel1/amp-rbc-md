@@ -5,11 +5,10 @@
 Diese Anleitung führt Sie durch die Installation von amp-rbc-md in verschiedenen Umgebungen:
 
 1. **Vollständige Installation** (2TB+ Speicherplatz) - Beste Qualität
-2. **Minimale Installation** (400GB Speicherplatz) - Reduzierte Qualität, aber funktionsfähig
-3. **Docker Installation** - Isolierte Umgebung
-4. **HPC Installation** - Für Cluster/Server
+2. **Docker Installation** - Isolierte Umgebung
+3. **HPC Installation** - Für Cluster/Server
 
-## Option 1: Vollständige Installation (Empfohlen)
+## Vollständige Installation (Empfohlen)
 
 ### Voraussetzungen
 
@@ -46,51 +45,7 @@ cd external/fastfold
 
 **Hinweis:** Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
 
-## Option 2: Minimale Installation (400GB VM)
-
-### Voraussetzungen
-
-- **Ubuntu 22.04**
-- **NVIDIA GPU** mit CUDA 12.1 Support
-- **Miniconda/Anaconda**
-- **Mindestens 400GB freier Speicherplatz**
-
-### Installation
-
-```bash
-# 1. Repository klonen (mit Submodulen)
-git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
-cd amp-rbc-md
-
-# 2. Minimales Setup ausführen
-./setup-minimal.sh
-```
-
-### Minimale Datenbanken herunterladen
-
-```bash
-# Nach der Installation
-./download-minimal-dbs.sh
-```
-
-**Hinweis:** 
-- Download dauert mehrere Stunden (~300GB)
-- Verwende tmux für Hintergrund-Download: `tmux new-session -d './download-minimal-dbs.sh'`
-- Qualität der Strukturvorhersage ist etwas geringer, aber für die meisten Peptide ausreichend
-
-### Unterschiede zur vollständigen Installation
-
-| Komponente | Vollständig | Minimal |
-|------------|-------------|---------|
-| BFD Datenbank | ~2TB | ~50GB (Small BFD) |
-| Uniref90 | Vollständig | Reduziert |
-| Uniref30 | Vollständig | Reduziert |
-| MGnify | Vollständig | Reduziert |
-| PDB70 | Vollständig | Reduziert |
-| Gesamtspeicher | ~2TB | ~300GB |
-| Vorhersagequalität | Beste | Gut |
-
-## Option 3: Docker Installation
+## Docker Installation
 
 ### Voraussetzungen
 
@@ -111,7 +66,7 @@ docker build -t amp-rbc-md .
 docker run --gpus all -it amp-rbc-md
 ```
 
-## Option 4: HPC Installation (Slurm)
+## HPC Installation (Slurm)
 
 ### Voraussetzungen
 
