@@ -78,8 +78,8 @@ git submodule status
 ## 🧬 Schritt 5: ColabFold installieren
 
 ```bash
-# ColabFold für Remote-Strukturvorhersage
-pip install colabfold
+# ColabFold mit AlphaFold-Unterstützung
+pip install "colabfold[alphafold]"
 
 # Teste Installation
 python -c "import colabfold; print('ColabFold OK')"
@@ -197,6 +197,12 @@ pip install colabfold
 **Lösung:** batchfold ist nicht nötig, nur colabfold installieren:
 ```bash
 pip install colabfold
+```
+
+### Problem: alphafold Modul nicht gefunden
+**Lösung:** ColabFold mit AlphaFold-Unterstützung installieren:
+```bash
+pip install "colabfold[alphafold]"
 ```
 
 ## 📊 Speicherplatz-Übersicht

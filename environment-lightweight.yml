@@ -32,7 +32,7 @@ dependencies:
   # pip packages
   - pip
   - pip:
-    # ColabFold (ohne lokale DBs)
-    - colabfold
+    # ColabFold mit AlphaFold-Unterstützung
+    - "colabfold[alphafold]"
     # Projekt selbst installieren
     - -e . 

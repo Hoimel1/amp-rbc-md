@@ -78,8 +78,8 @@ setup_colabfold() {
     source ~/.bashrc
     conda activate amp-rbc-md
     
-    # Installiere ColabFold
-pip install colabfold
+    # Installiere ColabFold mit AlphaFold-Unterstützung
+pip install "colabfold[alphafold]"
     
     log_success "ColabFold installiert"
 }
