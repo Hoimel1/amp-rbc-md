@@ -22,9 +22,9 @@ dependencies:
   - mdtraj
   - mdanalysis
   
-  # PyTorch (für FastFold)
-  - pytorch=2.1.0
-  - pytorch-cuda=11.8
+  # PyTorch (gemäß INSTALLATION_STEP_BY_STEP.md)
+  - pytorch=2.5.1
+  - pytorch-cuda=12.1
   
   # FastFold Dependencies
   - dm-tree
