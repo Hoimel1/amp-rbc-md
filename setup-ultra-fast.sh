@@ -79,7 +79,7 @@ setup_colabfold() {
     conda activate amp-rbc-md
     
     # Installiere ColabFold
-    pip install colabfold batchfold
+pip install colabfold
     
     log_success "ColabFold installiert"
 }

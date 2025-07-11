@@ -34,6 +34,5 @@ dependencies:
   - pip:
     # ColabFold (ohne lokale DBs)
     - colabfold
-    - batchfold
     # Projekt selbst installieren
     - -e . 

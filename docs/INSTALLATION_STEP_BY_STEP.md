@@ -79,7 +79,7 @@ git submodule status
 
 ```bash
 # ColabFold für Remote-Strukturvorhersage
-pip install colabfold batchfold
+pip install colabfold
 
 # Teste Installation
 python -c "import colabfold; print('ColabFold OK')"
@@ -189,8 +189,14 @@ conda install -c conda-forge gromacs=2024.5 -y
 ### Problem: ColabFold Import-Fehler
 **Lösung:** Reinstalliere ColabFold:
 ```bash
-pip uninstall colabfold batchfold -y
-pip install colabfold batchfold
+pip uninstall colabfold -y
+pip install colabfold
+```
+
+### Problem: batchfold nicht verfügbar
+**Lösung:** batchfold ist nicht nötig, nur colabfold installieren:
+```bash
+pip install colabfold
 ```
 
 ## 📊 Speicherplatz-Übersicht
