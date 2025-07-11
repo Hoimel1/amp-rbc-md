@@ -32,7 +32,7 @@ from .utils import LOGGER, ensure_dir
 # ------------------------------------------------------------------
 # Skip template search if env var gesetzt (Default = skip für Peptide)
 SKIP_TEMPL = os.getenv("FASTFOLD_SKIP_TEMPLATES", "1") == "1"
-NO_MSA     = os.getenv("FASTFOLD_NO_MSA", "1") == "1"
+NO_MSA = os.getenv("FASTFOLD_NO_MSA", "1") == "1"
 # ------------------------------------------------------------------
 
 __all__ = ["predict"]
@@ -49,13 +49,16 @@ def _find_fastfold_script() -> list[str]:
     """
 
     # Prüfe, ob lokales FastFold inference.py existiert
-    fastfold_repo = Path(__file__).parent.parent.parent / "external" / "fastfold" / "inference.py"
+    fastfold_repo = (
+        Path(__file__).parent.parent.parent / "external" / "fastfold" / "inference.py"
+    )
     if fastfold_repo.exists():
         return ["python", str(fastfold_repo)]
 
     # Prüfe, ob fastfold als Python-Modul importierbar ist (ohne CUDA-Erweiterungen)
     try:
         import importlib
+
         importlib.import_module("fastfold")
         # FastFold hat ein inference.py Skript
         return ["python", "-m", "fastfold.inference"]
@@ -65,6 +68,7 @@ def _find_fastfold_script() -> list[str]:
     # Fallback: OpenFold (falls verfügbar)
     try:
         import importlib
+
         importlib.import_module("openfold")
         # Prüfe ob run_pretrained_openfold verfügbar ist
         try:
@@ -131,7 +135,9 @@ def predict(
     if not SKIP_TEMPL:
         mmcif_dir = db_root / "pdb_mmcif" / "mmcif_files"
         if not mmcif_dir.exists():
-            raise FastFoldError("pdb_mmcif/mmcif_files nicht gefunden unter %s" % db_root)
+            raise FastFoldError(
+                "pdb_mmcif/mmcif_files nicht gefunden unter %s" % db_root
+            )
     else:
         # Dummy-Verzeichnis für Template-Skip
         mmcif_dir = db_root / "pdb_mmcif" / "mmcif_files"
@@ -159,14 +165,21 @@ def predict(
         "--uniref90_database_path": db_root / "uniref90" / "uniref90.fasta",
         "--mgnify_database_path": db_root / "mgnify" / "mgy_clusters_2018_12.fa",
         "--pdb70_database_path": db_root / "pdb70" / "pdb70",
-        "--uniclust30_database_path": db_root / "uniclust30" / "uniclust30_2018_08" / "uniclust30_2018_08",
-        "--bfd_database_path": db_root / "bfd" / "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+        "--uniclust30_database_path": db_root
+        / "uniclust30"
+        / "uniclust30_2018_08"
+        / "uniclust30_2018_08",
+        "--bfd_database_path": db_root
+        / "bfd"
+        / "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
     }
     for flag, path in db_flags.items():
         if path.exists():
             cmd += [flag, str(path)]
         else:
-            LOGGER.warning("FastFold: Datenbank fehlt (%s), Flag wird ausgelassen.", path)
+            LOGGER.warning(
+                "FastFold: Datenbank fehlt (%s), Flag wird ausgelassen.", path
+            )
 
     if model_device:
         cmd += ["--model_device", model_device]
@@ -184,4 +197,4 @@ def predict(
 
     pdb_path = pdbcandidates[0]
     LOGGER.info("FastFold: Struktur erzeugt (%s)", pdb_path)
-    return pdb_path 
+    return pdb_path

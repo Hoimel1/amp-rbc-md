@@ -19,7 +19,12 @@ CONSOLE = Console()
 @click.command("run_sim")
 # Eingabearten: Sequenz, FASTA oder bereits gefaltetes PDB
 @click.option("--seq", "sequence", type=str, help="Peptidsequenz (FASTA, 1-Letter)")
-@click.option("--pdb", "pdb_file", type=click.Path(exists=True, dir_okay=False), help="Pfad zu bereits gefalteter PDB-Datei")
+@click.option(
+    "--pdb",
+    "pdb_file",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Pfad zu bereits gefalteter PDB-Datei",
+)
 @click.option(
     "-f",
     "--fasta",
@@ -36,8 +41,17 @@ CONSOLE = Console()
 @click.option(
     "--dry-run", is_flag=True, help="Nur Schritte auflisten, nichts ausführen"
 )
-@click.option("--resume", is_flag=True, help="Überspringe bereits abgeschlossene Replika")
-@click.option("-j", "--workers", type=int, default=1, show_default=True, help="Parallele Worker für Replika")
+@click.option(
+    "--resume", is_flag=True, help="Überspringe bereits abgeschlossene Replika"
+)
+@click.option(
+    "-j",
+    "--workers",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Parallele Worker für Replika",
+)
 def run_sim(
     sequence: Optional[str],
     fasta_file: Optional[str],
@@ -53,7 +67,9 @@ def run_sim(
     """Führe komplette Pipeline für 1 Sequenz oder FASTA-Batch aus."""
 
     if sum(bool(x) for x in (sequence, fasta_file, pdb_file)) != 1:
-        CONSOLE.print("[red]Fehler: Genau einer der Parameter --seq, --fasta oder --pdb muss angegeben werden.")
+        CONSOLE.print(
+            "[red]Fehler: Genau einer der Parameter --seq, --fasta oder --pdb muss angegeben werden."
+        )
         sys.exit(1)
 
     seqs: list[str]
@@ -103,7 +119,9 @@ def run_sim(
             for phase in ("minim", "nvt", "npt", "prod")
         }
 
-        runner = gmx_runner.GromacsRunner(rep_dir, gpu_id=gpu_id, replica_id=rep, dry_run=dry_run)
+        runner = gmx_runner.GromacsRunner(
+            rep_dir, gpu_id=gpu_id, replica_id=rep, dry_run=dry_run
+        )
         current_gro = system_gro
         for phase in ("minim", "nvt", "npt", "prod"):
             tpr_path = rep_dir / f"{phase}.tpr"
@@ -114,10 +132,14 @@ def run_sim(
                 current_gro = phase_gro
 
         metrics = analyse.analyse_trajectory(trr, rep_dir)
-        verdict = judge.judge_metrics(**{k: metrics[k] for k in ("delta_g", "ci95", "thinning")})
+        verdict = judge.judge_metrics(
+            **{k: metrics[k] for k in ("delta_g", "ci95", "thinning")}
+        )
         row = (seq_hash, rep, *metrics.values(), verdict.label, verdict.confidence)
         (rep_dir / "report.csv").write_text(
-            "hash,rep,delta_g,ci95,thinning,pore,label,conf\n" + ",".join(map(str, row)) + "\n"
+            "hash,rep,delta_g,ci95,thinning,pore,label,conf\n"
+            + ",".join(map(str, row))
+            + "\n"
         )
         return row
 

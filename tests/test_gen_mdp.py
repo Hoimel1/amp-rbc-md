@@ -21,4 +21,4 @@ def test_infer_nsteps(length: int, expected_ns: int) -> None:
 
 def test_generate_prod(tmp_path: Path) -> None:
     mdp_path = generate("prod", tmp_path, length_aa=10)
-    assert "nsteps" in mdp_path.read_text() 
+    assert "nsteps" in mdp_path.read_text()

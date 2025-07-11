@@ -10,4 +10,4 @@ def test_judge_pass() -> None:
 def test_judge_fail() -> None:
     label, conf = judge_metrics(delta_g=2.0, ci95=2.0, thinning=1.0)
     assert label == LABELS["fail"]
-    assert conf < 0.7 
+    assert conf < 0.7

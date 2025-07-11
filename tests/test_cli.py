@@ -18,7 +18,9 @@ def _fake_run(self, tpr_file):  # noqa: D401
 def test_cli_dry(monkeypatch):
     monkeypatch.setattr("amp_rbc_md.gmx_runner.GromacsRunner.run", _fake_run)
     runner = CliRunner()
-    result = runner.invoke(run_sim, ["--seq", "ACDEFGHIK", "--n-replica", "1", "--dry-run"])
+    result = runner.invoke(
+        run_sim, ["--seq", "ACDEFGHIK", "--n-replica", "1", "--dry-run"]
+    )
     assert result.exit_code == 0
 
 

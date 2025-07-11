@@ -76,12 +76,12 @@ class GromacsRunner:  # noqa: D101
 
         LOGGER.info("Führe grompp aus: %s", " ".join(cmd))
         result = subprocess.run(
-            cmd, 
-            cwd=self.work_dir, 
-            stdout=subprocess.PIPE, 
+            cmd,
+            cwd=self.work_dir,
+            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=True
+            check=True,
         )
         LOGGER.info("grompp erfolgreich ausgeführt")
         return out_tpr

@@ -27,15 +27,19 @@ def martinize(
         str(top_path),
         "-x",
         str(gro_path),
-        "-ff", "martini3001",
-        "-p", "backbone",  # Positionsrestraints tauglich, nötig für spätere Equilibration
+        "-ff",
+        "martini3001",
+        "-p",
+        "backbone",  # Positionsrestraints tauglich, nötig für spätere Equilibration
         "-dssp",  # Sekundärstruktur automatisch bestimmen (benötigt dssp oder mdtraj)
     ]
     if elastic:
         cmd.append("-elastic")
     try:
         LOGGER.info("Führe martinize2 aus: %s", " ".join(cmd))
-        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(
+            cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
         LOGGER.info("martinize2 erfolgreich ausgeführt")
     except subprocess.CalledProcessError as e:
         LOGGER.error("martinize2 fehlgeschlagen: %s", e)

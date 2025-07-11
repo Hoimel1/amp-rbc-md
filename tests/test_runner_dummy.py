@@ -11,4 +11,4 @@ def test_gmx_runner_dry(tmp_path: Path) -> None:
     trr_path = runner.run(tpr)
     # Pfad wird zurückgegeben, Datei aber nicht geschrieben.
     assert trr_path.name.endswith(".trr")
-    assert not trr_path.exists() 
+    assert not trr_path.exists()

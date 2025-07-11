@@ -80,7 +80,9 @@ def detect_gpu() -> tuple[bool, str | None]:
             stderr=subprocess.PIPE,
             text=True,
         )
-        gpu_ids = [line.strip() for line in res.stdout.splitlines() if line.strip().isdigit()]
+        gpu_ids = [
+            line.strip() for line in res.stdout.splitlines() if line.strip().isdigit()
+        ]
         if gpu_ids:
             LOGGER.info("GPU erkannt via nvidia-smi: %s", gpu_ids[0])
             return True, gpu_ids[0]
@@ -88,7 +90,12 @@ def detect_gpu() -> tuple[bool, str | None]:
         pass
 
     try:
-        res = subprocess.run(["gmx", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        res = subprocess.run(
+            ["gmx", "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
         if "GPU support" in res.stdout:
             # Heuristik: setze auf 0
             LOGGER.info("GPU-Build von GROMACS erkannt, nehme Device 0")

@@ -71,6 +71,7 @@ where = ["src"]
 
 [tool.black]
 line-length = 88
+exclude = "(?x)(/(martinize2|external)/)"
 target-version = ['py310']
 include = '\.pyi?$'
 extend-exclude = '''

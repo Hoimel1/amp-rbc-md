@@ -12,6 +12,7 @@ from .utils import LOGGER, ensure_dir, set_seed
 # Optional ColabFold import
 try:
     from colabfold import batch  # type: ignore
+
     COLABFOLD_AVAILABLE: bool = True
 except ImportError:  # pragma: no cover
     COLABFOLD_AVAILABLE = False
@@ -19,6 +20,7 @@ except ImportError:  # pragma: no cover
 # FastFold/OpenFold Wrapper
 try:
     from .fastfold_wrap import predict as fastfold_predict  # noqa: WPS433
+
     FASTFOLD_AVAILABLE: bool = True
 except Exception:  # pragma: no cover
     FASTFOLD_AVAILABLE = False
@@ -99,7 +101,9 @@ def fasta_to_pdb(
 
     # FASTA parallel ablegen (immer)
     fasta_path = Path(out_dir) / "sequence.fasta"
-    SeqIO.write(SeqRecord(Seq(sequence), id="peptide", description=""), fasta_path, "fasta")
+    SeqIO.write(
+        SeqRecord(Seq(sequence), id="peptide", description=""), fasta_path, "fasta"
+    )
 
     if engine == "fastfold":
         try:

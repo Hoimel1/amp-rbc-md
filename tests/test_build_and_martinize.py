@@ -28,4 +28,4 @@ def test_martinize_dummy(tmp_path: Path) -> None:
     pdb = tmp_path / "model.pdb"
     pdb.write_text("HEADER")
     gro, top = martinize(pdb, tmp_path)
-    assert gro.exists() and top.exists() 
+    assert gro.exists() and top.exists()

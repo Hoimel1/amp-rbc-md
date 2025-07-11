@@ -15,8 +15,9 @@ _cli_path = Path(__file__).resolve().parent.parent / "cli"
 if str(_cli_path) not in sys.path:
     sys.path.append(str(_cli_path))
 
+
 def main() -> None:  # noqa: D401
     """Delegiert an den Click-Command `run_sim`."""
     run_sim_mod = importlib.import_module("cli.run_sim")
     run_sim = getattr(run_sim_mod, "run_sim")
-    run_sim.main(standalone_mode=True) 
+    run_sim.main(standalone_mode=True)

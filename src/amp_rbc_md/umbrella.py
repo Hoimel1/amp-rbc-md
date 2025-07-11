@@ -9,7 +9,12 @@ PULL_TEMPLATE = Path("mdp_templates/pull.mdp").read_text()
 DEFAULT_K = 1000  # kJ mol^-1 nm^-2
 
 
-def generate_windows(out_dir: str | Path, n_windows: int = 16, spacing_nm: float = 0.1, k: int = DEFAULT_K) -> List[Path]:
+def generate_windows(
+    out_dir: str | Path,
+    n_windows: int = 16,
+    spacing_nm: float = 0.1,
+    k: int = DEFAULT_K,
+) -> List[Path]:
     """Erzeuge Pull-MDP-Dateien für Umbrella-Sampling.
 
     Windows werden symmetrisch um z0=0 verteilt: -((n-1)/2)*spacing … +
@@ -26,4 +31,5 @@ def generate_windows(out_dir: str | Path, n_windows: int = 16, spacing_nm: float
     LOGGER.info("%d Umbrella-Fenster erzeugt", n_windows)
     return mdp_paths
 
-__all__ = ["generate_windows"] 
+
+__all__ = ["generate_windows"]

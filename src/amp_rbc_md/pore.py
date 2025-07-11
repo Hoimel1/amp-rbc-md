@@ -31,7 +31,9 @@ def detect_pore(
     traj = Path(traj)
 
     if mda is None:
-        raise RuntimeError("MDAnalysis ist nicht verfügbar. Bitte installieren Sie es mit: pip install MDAnalysis")
+        raise RuntimeError(
+            "MDAnalysis ist nicht verfügbar. Bitte installieren Sie es mit: pip install MDAnalysis"
+        )
 
     if not traj.exists():
         raise FileNotFoundError(f"Trajektorie {traj} existiert nicht")
@@ -59,4 +61,4 @@ def detect_pore(
     return False
 
 
-__all__ = ["detect_pore"] 
+__all__ = ["detect_pore"]
