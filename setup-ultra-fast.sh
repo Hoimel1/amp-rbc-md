@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# amp-rbc-md Lightweight Setup für 400GB VM
-# Verwendet ColabFold-Batch ohne lokale MSA-Datenbanken
+# amp-rbc-md Ultra-Fast Setup für 400GB VM
+# Minimale Installation mit nur essentiellen Paketen
 
 set -e
 
-echo "🚀 amp-rbc-md Lightweight Setup (400GB VM)"
-echo "=========================================="
+echo "⚡ amp-rbc-md Ultra-Fast Setup (400GB VM)"
+echo "========================================"
 
 # Farben für Output
 RED='\033[0;31m'
@@ -37,54 +37,65 @@ check_disk_space() {
     log_info "Prüfe verfügbaren Speicherplatz..."
     available_space=$(df -BG . | awk 'NR==2 {print $4}' | sed 's/G//')
     
-    if [ "$available_space" -lt 50 ]; then
-        log_error "Nicht genug Speicherplatz! Benötigt: 50GB, Verfügbar: ${available_space}GB"
+    if [ "$available_space" -lt 20 ]; then
+        log_error "Nicht genug Speicherplatz! Benötigt: 20GB, Verfügbar: ${available_space}GB"
         exit 1
     fi
     
     log_success "Speicherplatz OK: ${available_space}GB verfügbar"
 }
 
-# Conda Environment erstellen
+# Schnelles Conda Environment erstellen
 setup_conda() {
-    log_info "Erstelle Conda Environment..."
+    log_info "Erstelle minimales Conda Environment..."
     
     if command -v conda &> /dev/null; then
-        # Verwende Lightweight Environment
-        conda env create -f environment-lightweight.yml
+        # Erstelle Environment mit minimalen Paketen
+        conda create -n amp-rbc-md python=3.10 -y
         log_success "Conda Environment erstellt"
+        
+        # Aktiviere und installiere Pakete einzeln
+        source ~/.bashrc
+        conda activate amp-rbc-md
+        
+        log_info "Installiere essentielle Pakete..."
+        conda install -c conda-forge numpy pandas scipy click pyyaml -y
+        conda install -c bioconda gromacs=2024 -y
+        conda install -c nvidia pytorch=2.3.0 pytorch-cuda=12.1 -y
+        
+        log_success "Essentielle Pakete installiert"
     else
         log_error "Conda nicht gefunden. Bitte installiere Miniconda/Anaconda."
         exit 1
     fi
 }
 
-# ColabFold installieren (bereits in environment-lightweight.yml)
+# ColabFold installieren
 setup_colabfold() {
-    log_info "ColabFold bereits in Environment installiert..."
-    log_success "ColabFold verfügbar"
+    log_info "Installiere ColabFold..."
+    
+    # Aktiviere Environment
+    source ~/.bashrc
+    conda activate amp-rbc-md
+    
+    # Installiere ColabFold
+    pip install colabfold batchfold
+    
+    log_success "ColabFold installiert"
 }
 
-# Nur AlphaFold-Parameter herunterladen
-download_alphafold_params() {
-    log_info "Lade AlphaFold-Parameter herunter (~3.6 GB)..."
+# Projekt installieren
+install_project() {
+    log_info "Installiere amp-rbc-md Projekt..."
     
-    # Erstelle Download-Verzeichnis
-    mkdir -p ~/alphafold_dbs
+    # Aktiviere Environment
+    source ~/.bashrc
+    conda activate amp-rbc-md
     
-    # Lade Parameter direkt von ColabFold
-    cd ~/alphafold_dbs
+    # Installiere Projekt
+    pip install -e .
     
-    # ColabFold lädt Parameter automatisch beim ersten Lauf
-    # Wir können sie manuell herunterladen für bessere Performance
-    if command -v colabfold_batch &> /dev/null; then
-        log_info "ColabFold wird Parameter beim ersten Lauf automatisch herunterladen..."
-        log_success "AlphaFold-Parameter Setup abgeschlossen"
-    else
-        log_warning "ColabFold nicht verfügbar - Parameter werden beim ersten Lauf heruntergeladen"
-    fi
-    
-    cd ~/amp-rbc-md
+    log_success "Projekt installiert"
 }
 
 # Umgebungsvariablen setzen
@@ -93,9 +104,6 @@ setup_environment() {
     
     # Erstelle .env Datei
     cat > .env << EOF
-# AlphaFold-Parameter (ohne MSA-DBs)
-export ALPHAFOLD_DATA_DIR=~/alphafold_dbs
-
 # ColabFold Remote-MMSeqs2
 export COLABFOLD_REMOTE=1
 
@@ -107,10 +115,9 @@ export GMX_GPU=0
 EOF
     
     # Füge zu .bashrc hinzu
-    if ! grep -q "ALPHAFOLD_DATA_DIR" ~/.bashrc; then
+    if ! grep -q "COLABFOLD_REMOTE" ~/.bashrc; then
         echo "" >> ~/.bashrc
-        echo "# amp-rbc-md Lightweight Setup" >> ~/.bashrc
-        echo "export ALPHAFOLD_DATA_DIR=~/alphafold_dbs" >> ~/.bashrc
+        echo "# amp-rbc-md Ultra-Fast Setup" >> ~/.bashrc
         echo "export COLABFOLD_REMOTE=1" >> ~/.bashrc
     fi
     
@@ -145,33 +152,32 @@ test_installation() {
     if command -v amp-rbc-md &> /dev/null; then
         log_success "amp-rbc-md CLI verfügbar"
     else
-        log_warning "amp-rbc-md CLI nicht gefunden - installiere mit 'pip install -e .'"
+        log_warning "amp-rbc-md CLI nicht gefunden"
     fi
 }
 
 # Hauptfunktion
 main() {
-    log_info "Starte Lightweight Setup für 400GB VM..."
+    log_info "Starte Ultra-Fast Setup für 400GB VM..."
     
     check_disk_space
     setup_conda
     setup_colabfold
-    download_alphafold_params
+    install_project
     setup_environment
     
     echo ""
-    log_success "Lightweight Setup abgeschlossen!"
+    log_success "Ultra-Fast Setup abgeschlossen!"
     echo ""
     log_info "Speicherplatz-Verbrauch:"
-    echo "  - AlphaFold-Parameter: ~3.6 GB"
     echo "  - Repository + Code: ~1 GB"
+    echo "  - Conda Environment: ~2 GB"
     echo "  - Gesamt: < 5 GB"
     echo ""
     log_info "Nächste Schritte:"
     echo "1. Aktiviere Environment: conda activate amp-rbc-md"
-    echo "2. Installiere Package: pip install -e ."
-    echo "3. Teste: amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run"
-    echo "4. Echte Simulation: amp-rbc-md --seq GLSILGKLL --backend colabfold --n-replica 1"
+    echo "2. Teste: amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run"
+    echo "3. Echte Simulation: amp-rbc-md --seq GLSILGKLL --backend colabfold --n-replica 1"
     echo ""
     log_warning "Hinweis: Diese Installation verwendet ColabFold-Batch mit Remote-MMSeqs2"
     log_warning "Keine lokalen MSA-Datenbanken nötig - MSA kommt vom Server"

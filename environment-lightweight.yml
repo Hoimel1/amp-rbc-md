@@ -1,0 +1,40 @@
+name: amp-rbc-md
+channels:
+  - conda-forge
+  - bioconda
+  - nvidia
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.10
+  
+  # Essential Scientific Stack
+  - numpy>=1.23,<2.0
+  - pandas>=1.5,<2.0
+  - scipy
+  - click
+  - pyyaml
+  - rich
+  - tqdm
+  - matplotlib
+  
+  # MD-Stack (nur GROMACS)
+  - gromacs=2024
+  
+  # System Tools
+  - wget
+  - curl
+  - git
+  
+  # PyTorch (für ColabFold)
+  - pytorch=2.3.0
+  - pytorch-cuda=12.1
+  
+  # pip packages
+  - pip
+  - pip:
+    # ColabFold (ohne lokale DBs)
+    - colabfold
+    - batchfold
+    # Projekt selbst installieren
+    - -e . 
