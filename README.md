@@ -28,10 +28,7 @@ cd amp-rbc-md
 # 2. Folge der detaillierten Anleitung
 docs/INSTALLATION_STEP_BY_STEP.md
 
-# 3. FastFold einfach installieren (ohne CUDA-Erweiterungen)
-./install-fastfold-simple.sh
-
-# 4. Teste nach jedem Schritt
+# 3. Teste nach jedem Schritt
 ./test-installation.sh
 ```
 

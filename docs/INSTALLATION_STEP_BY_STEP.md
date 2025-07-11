@@ -92,21 +92,16 @@ pip install "colabfold[alphafold]"
 python -c "import colabfold; print('ColabFold installiert')"
 ```
 
-## Schritt 8: FastFold ohne CUDA-Erweiterungen installieren
+## Schritt 8: FastFold installieren
 
 ```bash
-# FastFold als Python-Paket ohne CUDA-Erweiterungen installieren
+# FastFold aus dem Submodul installieren
 cd external/fastfold
-
-# Setup ohne CUDA-Erweiterungen
-export FASTFOLD_SKIP_CUDA=1
-pip install -e . --no-deps
-
-# Zurück zum Hauptverzeichnis
+pip install -e . --no-build-isolation
 cd ../..
 
 # FastFold-Test
-python -c "import fastfold; print('FastFold installiert (ohne CUDA-Erweiterungen)')"
+python -c "import fastfold; print('FastFold installiert')"
 ```
 
 ## Schritt 9: Datenbanken herunterladen (Lightweight)
@@ -170,9 +165,9 @@ amp-rbc-md -f examples/batch.fasta --backend colabfold --n-replica 1 --profile d
 
 ### FastFold-Installation schlägt fehl
 ```bash
-# Alternative: FastFold ohne CUDA-Erweiterungen
+# Alternative: FastFold mit anderen Flags
 cd external/fastfold
-pip install -e . --no-deps --no-build-isolation
+pip install -e . --no-build-isolation --config-settings editable_mode=compat
 cd ../..
 ```
 
