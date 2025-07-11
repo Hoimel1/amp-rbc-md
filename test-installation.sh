@@ -88,13 +88,7 @@ test_conda() {
 test_python_packages() {
     log_info "Teste Python Packages..."
     
-    # Aktiviere Environment falls vorhanden
-    if conda env list | grep -q "amp-rbc-md"; then
-        source ~/.bashrc
-        conda activate amp-rbc-md
-    fi
-    
-    # Teste essentielle Packages
+    # Teste essentielle Packages (ohne conda activate im Skript)
     packages=("numpy" "pandas" "scipy" "matplotlib" "click" "pyyaml" "rich" "tqdm")
     
     for package in "${packages[@]}"; do

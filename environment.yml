@@ -38,11 +38,10 @@ dependencies:
   - flake8
   - mypy
   
-  # PyTorch mit CUDA 12.1 Support
-  - pytorch=2.3.0
-  - pytorch-cuda=12.1
-  - torchvision
-  - torchaudio
+  # PyTorch (aus conda-forge)
+- pytorch=2.5.1
+- torchvision
+- torchaudio
   
   # Deep Learning & Optimization
   - deepspeed

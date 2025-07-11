@@ -58,8 +58,8 @@ conda install -c conda-forge click pyyaml rich tqdm -y
 # GROMACS (MD-Simulation) - aus conda-forge, nicht bioconda
 conda install -c conda-forge gromacs=2024.5 -y
 
-# PyTorch mit CUDA
-conda install -c nvidia pytorch=2.3.0 pytorch-cuda=12.1 -y
+# PyTorch (aus conda-forge, nicht nvidia)
+conda install -c conda-forge pytorch=2.5.1 -y
 
 # System-Tools
 conda install -c conda-forge wget curl git -y
@@ -172,6 +172,12 @@ conda install -c conda-forge gromacs=2024.5 -y
 ```bash
 nvidia-smi
 python -c "import torch; print(torch.cuda.is_available())"
+```
+
+### Problem: PyTorch nicht in nvidia Channel verfügbar
+**Lösung:** PyTorch ist in conda-forge verfügbar:
+```bash
+conda install -c conda-forge pytorch=2.5.1 -y
 ```
 
 ### Problem: GROMACS nicht gefunden
