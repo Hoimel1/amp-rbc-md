@@ -6,7 +6,7 @@ channels:
 dependencies:
   # Core Python & Scientific Stack
   - python=3.10
-  - numpy>=1.23,<2.0  # Kompatibilität mit FastFold
+  - numpy>=1.23,<2.0
   - pandas>=1.5,<2.0
   - scipy
   - click
@@ -18,15 +18,15 @@ dependencies:
   - moviepy
   
   # MD-Stack
-  - gromacs=2024.5          # GPU-fähiges GROMACS
-  - vermouth              # martinize2-Dependency
+  - gromacs=2024.5
+  - vermouth
   
-  # Trajektorien-Analyse (echte Implementierungen)
-  - mdtraj                # Für Trajektorien-Analyse
-  - mdanalysis            # Für Pore-Detektion und Thinning-Analyse
+  # Trajektorien-Analyse
+  - mdtraj
+  - mdanalysis
   
   # System Tools
-  - aria2                 # Für Datenbank-Downloads
+  - aria2
   - wget
   - curl
   - git
@@ -38,10 +38,11 @@ dependencies:
   - flake8
   - mypy
   
-  # PyTorch (aus conda-forge)
-- pytorch=2.5.1
-- torchvision
-- torchaudio
+  # PyTorch (angepasst für CUDA 11.5)
+  - pytorch=2.1.0
+  - pytorch-cuda=11.8
+  - torchvision
+  - torchaudio
   
   # Deep Learning & Optimization
   - deepspeed
@@ -60,12 +61,9 @@ dependencies:
   - seaborn
   - plotly
   
-  # pip packages (nach conda installieren)
+  # pip packages
   - pip
   - pip:
-    # FastFold als Git-Submodul installieren
     - -e external/fastfold
-    # OpenFold als Git-Submodul installieren  
     - -e external/openfold
-    # Projekt selbst installieren
     - -e . 
