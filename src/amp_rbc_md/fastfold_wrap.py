@@ -39,8 +39,13 @@ class FastFoldError(RuntimeError):
 def _find_fastfold_script() -> list[str]:
     """Ermittle Aufruf für FastFold-Inferenz.
 
-    Bevorzugt FastFold inference.py, Fallback: OpenFold falls verfügbar.
+    Bevorzugt lokales FastFold inference.py, Fallback: OpenFold falls verfügbar.
     """
+
+    # Prüfe, ob lokales FastFold inference.py existiert
+    fastfold_repo = Path(__file__).parent.parent.parent / "fastfold_repo" / "inference.py"
+    if fastfold_repo.exists():
+        return ["python", str(fastfold_repo)]
 
     # Prüfe, ob fastfold als Python-Modul importierbar ist
     try:
