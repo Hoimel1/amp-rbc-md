@@ -36,29 +36,44 @@ class FastFoldError(RuntimeError):
     """Fehler bei der FastFold-Inferenz."""
 
 
-def _find_openfold_script() -> list[str]:
-    """Ermittle Aufruf für das OpenFold-Inferenzskript.
+def _find_fastfold_script() -> list[str]:
+    """Ermittle Aufruf für FastFold-Inferenz.
 
-    Bevorzugt ``python -m openfold.run_pretrained_openfold``.
-    Fallback: direktes Skript, falls im $PATH vorhanden.
+    Bevorzugt FastFold direkt, Fallback: OpenFold falls verfügbar.
     """
 
-    # Prüfe, ob openfold als Python-Modul importierbar ist
+    # Prüfe, ob fastfold als Python-Modul importierbar ist
     try:
         import importlib
-
-        importlib.import_module("openfold")
-        return ["python", "-m", "openfold.run_pretrained_openfold"]
+        importlib.import_module("fastfold")
+        return ["python", "-m", "fastfold.inference"]
     except ModuleNotFoundError:
         pass
 
-    # Suche nach run_pretrained_openfold.py im PATH
+    # Fallback: OpenFold (falls verfügbar)
+    try:
+        import importlib
+        importlib.import_module("openfold")
+        # Prüfe ob run_pretrained_openfold verfügbar ist
+        try:
+            importlib.import_module("openfold.run_pretrained_openfold")
+            return ["python", "-m", "openfold.run_pretrained_openfold"]
+        except ModuleNotFoundError:
+            pass
+    except ModuleNotFoundError:
+        pass
+
+    # Suche nach Skripten im PATH
+    script = shutil.which("fastfold")
+    if script:
+        return [script]
+
     script = shutil.which("run_pretrained_openfold.py")
     if script:
         return ["python", script]
 
     raise FastFoldError(
-        "OpenFold nicht installiert. Bitte 'pip install openfold' ausführen oder sicherstellen, dass 'python -m openfold.run_pretrained_openfold' funktioniert."
+        "Weder FastFold noch OpenFold verfügbar. Bitte 'pip install fastfold' oder 'pip install openfold' ausführen."
     )
 
 
@@ -104,7 +119,7 @@ def predict(
     if not mmcif_dir.exists():
         raise FastFoldError("pdb_mmcif/mmcif_files nicht gefunden unter %s" % db_root)
 
-    cmd = _find_openfold_script() + [
+    cmd = _find_fastfold_script() + [
         str(fasta_path),
         str(mmcif_dir),
         "--output_dir",
