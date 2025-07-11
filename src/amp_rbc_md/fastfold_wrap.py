@@ -29,6 +29,12 @@ from typing import Optional
 
 from .utils import LOGGER, ensure_dir
 
+# ------------------------------------------------------------------
+# Skip template search if env var gesetzt (Default = skip für Peptide)
+SKIP_TEMPL = os.getenv("FASTFOLD_SKIP_TEMPLATES", "1") == "1"
+NO_MSA     = os.getenv("FASTFOLD_NO_MSA", "1") == "1"
+# ------------------------------------------------------------------
+
 __all__ = ["predict"]
 
 
@@ -121,9 +127,15 @@ def predict(
             "OPENFOLD_DATA nicht gesetzt oder Verzeichnis existiert nicht: %s" % db_root
         )
 
-    mmcif_dir = db_root / "pdb_mmcif" / "mmcif_files"
-    if not mmcif_dir.exists():
-        raise FastFoldError("pdb_mmcif/mmcif_files nicht gefunden unter %s" % db_root)
+    # Prüfe MMCIF nur wenn Templates verwendet werden
+    if not SKIP_TEMPL:
+        mmcif_dir = db_root / "pdb_mmcif" / "mmcif_files"
+        if not mmcif_dir.exists():
+            raise FastFoldError("pdb_mmcif/mmcif_files nicht gefunden unter %s" % db_root)
+    else:
+        # Dummy-Verzeichnis für Template-Skip
+        mmcif_dir = db_root / "pdb_mmcif" / "mmcif_files"
+        mmcif_dir.mkdir(parents=True, exist_ok=True)
 
     cmd = _find_fastfold_script() + [
         str(fasta_path),
@@ -135,6 +147,12 @@ def predict(
         "--enable_workflow",
         "--inplace",
     ]
+
+    # FastFold No-MSA/Template Flags
+    if NO_MSA:
+        cmd += ["--no_msa"]
+    if SKIP_TEMPL:
+        cmd += ["--no_templates"]
 
     # Häufig benötigte Datenbanken
     db_flags = {
