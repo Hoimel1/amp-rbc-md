@@ -2,73 +2,41 @@
 
 ## Übersicht
 
-AMP-RBC-MD ist eine vollständige Pipeline für die Simulation antimikrobieller Peptide. Diese Anleitung führt Sie durch die komplette Installation.
+Diese Anleitung führt Sie durch die Installation von amp-rbc-md in verschiedenen Umgebungen:
 
-## Systemanforderungen
+1. **Vollständige Installation** (2TB+ Speicherplatz) - Beste Qualität
+2. **Minimale Installation** (400GB Speicherplatz) - Reduzierte Qualität, aber funktionsfähig
+3. **Docker Installation** - Isolierte Umgebung
+4. **HPC Installation** - Für Cluster/Server
 
-### Hardware
-- **CPU**: 8+ Cores (empfohlen)
-- **RAM**: 32+ GB (empfohlen)
-- **GPU**: NVIDIA GPU mit CUDA 12.1 Support
-- **Speicher**: 2+ TB freier Speicherplatz
+## Option 1: Vollständige Installation (Empfohlen)
 
-### Software
-- **OS**: Ubuntu 22.04 (empfohlen)
-- **Conda**: Miniconda oder Anaconda
-- **Git**: Für Repository-Klon
+### Voraussetzungen
 
-## Schritt-für-Schritt Installation
+- **Ubuntu 22.04** (empfohlen)
+- **NVIDIA GPU** mit CUDA 12.1 Support
+- **Miniconda/Anaconda**
+- **Mindestens 2 TB freier Speicherplatz**
 
-### 1. System vorbereiten
-
-```bash
-# System aktualisieren
-sudo apt update && sudo apt upgrade -y
-
-# NVIDIA-Treiber installieren (falls nicht vorhanden)
-sudo apt install nvidia-driver-535
-
-# CUDA Toolkit installieren
-wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
-sudo sh cuda_12.1.0_530.30.02_linux.run
-```
-
-### 2. Miniconda installieren
+### Installation
 
 ```bash
-# Miniconda herunterladen
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-
-# Installieren
-bash Miniconda3-latest-Linux-x86_64.sh
-
-# Shell neu laden
-source ~/.bashrc
-```
-
-### 3. Repository klonen
-
-```bash
-# Repository mit Submodulen klonen
+# 1. Repository klonen (mit Submodulen)
 git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
-```
 
-### 4. Automatisches Setup
-
-```bash
-# Setup-Skript ausführen
+# 2. Setup-Skript ausführen
 ./setup.sh
 ```
 
-Das Setup-Skript:
-- ✅ Erstellt das Conda-Environment
-- ✅ Installiert alle Python-Abhängigkeiten
-- ✅ Installiert FastFold & OpenFold
-- ✅ Konfiguriert Umgebungsvariablen
-- ✅ Testet die Installation
+Das Setup-Skript installiert automatisch:
+- ✅ Conda-Environment mit allen Abhängigkeiten
+- ✅ PyTorch mit CUDA 12.1 Support
+- ✅ FastFold & OpenFold als Git-Submodule
+- ✅ GROMACS 2024 mit GPU-Support
+- ✅ Alle Python-Abhängigkeiten
 
-### 5. Datenbanken herunterladen
+### Datenbanken herunterladen
 
 ```bash
 # Nach der Installation
@@ -76,67 +44,120 @@ cd external/fastfold
 ./scripts/download_all_data.sh $HOME/alphafold_dbs/
 ```
 
-**Wichtig**: Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
+**Hinweis:** Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
 
-### 6. Installation testen
+## Option 2: Minimale Installation (400GB VM)
+
+### Voraussetzungen
+
+- **Ubuntu 22.04**
+- **NVIDIA GPU** mit CUDA 12.1 Support
+- **Miniconda/Anaconda**
+- **Mindestens 400GB freier Speicherplatz**
+
+### Installation
 
 ```bash
-# Zurück ins Projekt-Verzeichnis
-cd ~/amp-rbc-md
+# 1. Repository klonen (mit Submodulen)
+git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
+cd amp-rbc-md
 
-# Dry-Run testen
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
+# 2. Minimales Setup ausführen
+./setup-minimal.sh
 ```
 
-## Manuelle Installation (Alternative)
-
-Falls das automatische Setup nicht funktioniert:
+### Minimale Datenbanken herunterladen
 
 ```bash
-# 1. Environment erstellen
-conda env create -f environment.yml
+# Nach der Installation
+./download-minimal-dbs.sh
+```
+
+**Hinweis:** 
+- Download dauert mehrere Stunden (~300GB)
+- Verwende tmux für Hintergrund-Download: `tmux new-session -d './download-minimal-dbs.sh'`
+- Qualität der Strukturvorhersage ist etwas geringer, aber für die meisten Peptide ausreichend
+
+### Unterschiede zur vollständigen Installation
+
+| Komponente | Vollständig | Minimal |
+|------------|-------------|---------|
+| BFD Datenbank | ~2TB | ~50GB (Small BFD) |
+| Uniref90 | Vollständig | Reduziert |
+| Uniref30 | Vollständig | Reduziert |
+| MGnify | Vollständig | Reduziert |
+| PDB70 | Vollständig | Reduziert |
+| Gesamtspeicher | ~2TB | ~300GB |
+| Vorhersagequalität | Beste | Gut |
+
+## Option 3: Docker Installation
+
+### Voraussetzungen
+
+- **Docker** mit NVIDIA Container Runtime
+- **NVIDIA GPU** mit CUDA 12.1 Support
+
+### Installation
+
+```bash
+# 1. Repository klonen
+git clone https://github.com/Hoimel1/amp-rbc-md.git
+cd amp-rbc-md
+
+# 2. Docker Image bauen
+docker build -t amp-rbc-md .
+
+# 3. Container starten
+docker run --gpus all -it amp-rbc-md
+```
+
+## Option 4: HPC Installation (Slurm)
+
+### Voraussetzungen
+
+- **HPC Cluster** mit Slurm
+- **NVIDIA GPUs** verfügbar
+- **Conda/Anaconda** verfügbar
+
+### Installation
+
+```bash
+# 1. Repository klonen
+git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
+cd amp-rbc-md
+
+# 2. Setup ausführen
+./setup.sh
+
+# 3. Snakemake-Profil konfigurieren
+# Bearbeite workflow/profile/slurm/config.yaml
+```
+
+### Ausführung auf HPC
+
+```bash
+# Batch-Job starten
+snakemake --profile workflow/profile/slurm -j 64
+```
+
+## Nach der Installation
+
+### Environment aktivieren
+
+```bash
 conda activate amp-rbc-md
+```
 
-# 2. Git-Submodule initialisieren
-git submodule update --init --recursive
+### Package installieren
 
-# 3. FastFold installieren
-cd external/fastfold
-pip install -e . --no-build-isolation
-cd ../..
-
-# 4. OpenFold installieren
-cd external/openfold
-pip install -e . --no-build-isolation
-cd ../..
-
-# 5. Projekt installieren
+```bash
 pip install -e .
-```
-
-## Verifikation
-
-### GPU-Support prüfen
-
-```bash
-# CUDA verfügbar?
-nvidia-smi
-
-# PyTorch CUDA-Support
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
-```
-
-### Installation testen
-
-```bash
-# Verifikationsskript
-python verify-installation.py --engine fastfold
 ```
 
 ### Erste Simulation
 
 ```bash
-# Dry-Run
+# Dry-Run testen
 amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
 
 # Echte Simulation
@@ -145,47 +166,63 @@ amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
 
 ## Troubleshooting
 
-### Häufige Probleme
+### GPU-Probleme
 
-**GPU-Probleme:**
 ```bash
-# CUDA-Version prüfen
-nvcc --version
+# Prüfe CUDA-Installation
+nvidia-smi
 
-# PyTorch neu installieren
-pip uninstall torch torchvision torchaudio
-pip install torch==2.3.0+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# Prüfe PyTorch CUDA-Support
+python -c "import torch; print(torch.cuda.is_available())"
+
+# Setze GPU-ID
+export CUDA_VISIBLE_DEVICES=0
 ```
 
-**Speicherplatz-Probleme:**
+### Speicherplatz-Probleme
+
 ```bash
-# Speicherplatz prüfen
+# Prüfe verfügbaren Speicherplatz
 df -h
 
-# Nur essentielle Datenbanken
-cd external/fastfold
-./scripts/download_pdb_mmcif.sh $HOME/alphafold_dbs/
+# Lösche temporäre Dateien
+rm -rf /tmp/*
 ```
 
-**Conda-Probleme:**
+### Conda-Probleme
+
 ```bash
 # Environment neu erstellen
 conda env remove -n amp-rbc-md
 conda env create -f environment.yml
+
+# Abhängigkeiten aktualisieren
+conda update --all
 ```
 
-### Support
+### Datenbank-Probleme
+
+```bash
+# Prüfe Datenbank-Pfad
+echo $ALPHAFOLD_DATA_DIR
+
+# Setze Datenbank-Pfad
+export ALPHAFOLD_DATA_DIR=~/alphafold_dbs
+```
+
+## Support
 
 Bei Problemen:
-1. Prüfe die [Troubleshooting-Seite](../TROUBLESHOOTING.md)
-2. Öffne ein [GitHub Issue](https://github.com/Hoimel1/amp-rbc-md/issues)
-3. Prüfe die Logs in `results/`
+
+1. Prüfe die [Troubleshooting-Sektion](#troubleshooting)
+2. Schaue in die [Logs](docs/TROUBLESHOOTING.md)
+3. Erstelle ein [Issue](https://github.com/Hoimel1/amp-rbc-md/issues)
 
 ## Nächste Schritte
 
 Nach erfolgreicher Installation:
 
-1. **Tutorial**: Siehe [Tutorial](TUTORIAL.md)
-2. **Beispiele**: Teste die Beispiel-Sequenzen in `examples/`
-3. **Konfiguration**: Passe die Profile in `config/` an
-4. **Dokumentation**: Lese die [API-Dokumentation](API.md) 
+1. Lese das [Tutorial](docs/TUTORIAL.md)
+2. Teste mit [Beispiel-Sequenzen](examples/)
+3. Konfiguriere [Batch-Verarbeitung](docs/BATCH.md)
+4. Optimiere für [HPC](docs/HPC.md) 
