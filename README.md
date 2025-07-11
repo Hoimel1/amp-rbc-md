@@ -1,186 +1,187 @@
-# amp-rbc-md  
-[![CI](https://github.com/Hoimel1/amp-rbc-md/actions/workflows/ci.yml/badge.svg)](https://github.com/Hoimel1/amp-rbc-md/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1234567.svg)](https://doi.org/10.5281/zenodo.1234567)
+# AMP-RBC-MD
 
-Batch-fähige Martini-3-Simulations­pipeline für antimikrobielle Peptide an roten Blutkörperchen – inkl. Replika-Support, WHAM-Bootstrap-Analyse & automatischer Tox-Bewertung.
+**Antimicrobial Peptide RBC Membrane Disruption - Molecular Dynamics Pipeline**
 
----
+Eine vollständige Pipeline zur Simulation von antimikrobiellen Peptiden und deren Interaktion mit roten Blutkörperchen (RBC) unter Verwendung von Martini-3 Coarse-Grained Molecular Dynamics.
 
-## 🚀 Quick Start
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/)
+[![Conda](https://img.shields.io/badge/conda-✓-green.svg)](https://docs.conda.io/)
+
+## 🚀 Schnellstart
 
 ### Voraussetzungen
-- **Linux** (Ubuntu 20.04+ empfohlen)
-- **NVIDIA GPU** mit CUDA 12.1+
-- **Conda** oder Miniconda
-- **Python 3.10**
+
+- **Ubuntu 22.04** (empfohlen)
+- **NVIDIA GPU** mit CUDA 12.1 Support
+- **Miniconda/Anaconda**
+- **Mindestens 2 TB freier Speicherplatz** (für alle Datenbanken)
 
 ### Installation
 
 ```bash
-# Repository klonen
-git clone https://github.com/Hoimel1/amp-rbc-md.git
+# 1. Repository klonen (mit Submodulen)
+git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
-# Einfaches Setup
-conda env create -f environment.yml
-conda activate amp-rbc-md
-
-# Editable install (entwickeln & testen)
-pip install -e .
-
-# Datenbanken für FastFold/OpenFold (einmalig)
-# export OPENFOLD_DATA=/path/to/alphafold_dbs
-
-# OpenFold-Submodul initialisieren
-git submodule update --init --recursive
-# und lokal installieren
-pip install -e external/openfold
+# 2. Setup-Skript ausführen
+./setup.sh
 ```
 
-### Verifikation
+Das Setup-Skript installiert automatisch:
+- ✅ Conda-Environment mit allen Abhängigkeiten
+- ✅ PyTorch mit CUDA 12.1 Support
+- ✅ FastFold & OpenFold als Git-Submodule
+- ✅ GROMACS 2024 mit GPU-Support
+- ✅ Alle Python-Abhängigkeiten
+
+### Datenbanken herunterladen
 
 ```bash
-python verify-installation.py
+# Nach der Installation
+cd external/fastfold
+./scripts/download_all_data.sh $HOME/alphafold_dbs/
 ```
+
+**Hinweis:** Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
 
 ### Erste Simulation
 
 ```bash
-# Dry-run
+# Dry-Run testen
 amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
 
 # Echte Simulation
 amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
 ```
 
-### PDB-mmCIF-Daten für FastFold herunterladen
+## 📋 Features
 
-FastFold / OpenFold benötigt die **experimentellen PDB-Strukturdaten** (mmCIF-Format). Einmalig herunterladen ⇒ ~95 GB :
+- **Strukturvorhersage**: FastFold/OpenFold für AlphaFold2-basierte Strukturvorhersage
+- **Coarse-Grained MD**: Martini-3 Kraftfeld für effiziente Simulationen
+- **GPU-Beschleunigung**: Vollständige CUDA-Unterstützung
+- **Batch-Verarbeitung**: Parallele Verarbeitung mehrerer Sequenzen
+- **Automatisierte Pipeline**: Von FASTA zu MD-Trajektorien in einem Schritt
 
-```bash
-# Zielverzeichnis festlegen
-export OPENFOLD_DATA=$HOME/alphafold_dbs
-mkdir -p "$OPENFOLD_DATA/pdb_mmcif/mmcif_files"
-
-# Kompletten mmCIF-Mirror vom PDBe-rsync holen
-rsync -rlpt -v -z --delete \
-    rsync.ebi.ac.uk::pub/databases/pdb/data/structures/divided/mmCIF/ \
-    "$OPENFOLD_DATA/pdb_mmcif/mmcif_files"
-
-# (Empfohlen) SEQRES-Datei für Template-Suche
-wget -P "$OPENFOLD_DATA/pdb_mmcif" \
-    https://ftp.ebi.ac.uk/pub/databases/pdb/derived_data/pdb_seqres.txt
-```
-
-Danach die Variable dauerhaft setzen (z. B. in `~/.bashrc`):
-
-```bash
-echo 'export OPENFOLD_DATA="$HOME/alphafold_dbs"' >> ~/.bashrc
-```
-
-## 🧬 Theorie-Hintergrund
-
-Die Insertions-Freie-Energie (ΔG_insert) wird aus Umbrella-Sampling-Fenstern mittels WHAM bestimmt. Ein Bootstrap (N=200) liefert Konfidenzintervalle, die mit heuristischen Schwellen aus `config/judge.yaml` verglichen werden, um toxische Kandidaten zu markieren.
-
-**Strukturvorhersage**: Nutzt FastFold/OpenFold (PyTorch-basierte AlphaFold2-Reimplementation) – GPU-beschleunigt ohne JAX-Abhängigkeit.
-
-## 🐳 Docker
-
-```bash
-# Build Image
-docker build -t amp-rbc-md .
-
-# Run mit GPU
-docker run --gpus all -it amp-rbc-md
-```
-
-## ⚡ HPC/Slurm
-
-```bash
-#!/bin/bash
-#SBATCH --gpus=1 --time=24:00:00
-module load cuda/12.3 gromacs/2024-gpu
-
-conda activate amp-rbc-md
-export GMX_GPU=0
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 3 --profile chol_high --gpu 0
-```
-
-## 📊 MLflow-Tracking
-
-```bash
-export MLFLOW_TRACKING_URI=file:$(pwd)/mlruns
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default
-```
-
-## 🔧 CLI-Features
-
-| Flag | Beschreibung |
-|------|--------------|
-| `--seq` | Peptid-Sequenz |
-| `-f / --fasta` | Batch-FASTA-Datei |
-| `--n-replica` | Anzahl Replika |
-| `--profile` | Lipid-Profil (default, chol_high, chol_low) |
-| `--gpu` | GPU-ID |
-| `-j / --workers` | Parallele Ausführung |
-| `--resume` | Überspringe berechnete Replika |
-| `--dry-run` | Nur Planung, keine Ausführung |
-
-## 📁 Projekt-Struktur
+## 🏗️ Architektur
 
 ```
 amp-rbc-md/
-├── src/                    # Python-Module
-│   ├── fasta_to_pdb.py    # Strukturvorhersage
-│   ├── martinize_wrap.py  # Martini-3-Wrapper
-│   ├── build_membrane.py  # Membran-Aufbau
-│   ├── gmx_runner.py      # GROMACS-Integration
-│   ├── analyse.py         # WHAM-Bootstrap
-│   └── judge.py           # Tox-Logik
-├── workflow/              # Snakemake-Workflow
-├── config/               # Konfigurationsdateien
-├── examples/             # Beispiel-FASTA
-├── tests/                # Unit-Tests
-└── docs/                 # Dokumentation
+├── src/amp_rbc_md/          # Hauptcode
+│   ├── fastfold_wrap.py     # FastFold-Integration
+│   ├── fasta_to_pdb.py      # Strukturvorhersage
+│   └── ...
+├── external/                # Git-Submodule
+│   ├── fastfold/           # FastFold (optimiertes AlphaFold2)
+│   ├── openfold/           # OpenFold (Referenz-Implementation)
+│   └── martinize2/         # Martini-3 Topologie-Generator
+├── workflow/               # Snakemake-Pipeline
+├── mdp_templates/          # GROMACS-Parameter
+└── environment.yml         # Conda-Environment
 ```
 
-## 🧪 Tests
+## 🔧 Konfiguration
+
+### Profile
+
+Verschiedene Simulationsprofile sind verfügbar:
 
 ```bash
-pytest tests/
-pytest --cov=src tests/
+# Standard-Profil
+amp-rbc-md --seq <sequence> --profile default
+
+# GPU-optimiertes Profil
+amp-rbc-md --seq <sequence> --profile gpu
+
+# Lange Trajektorien
+amp-rbc-md --seq <sequence> --profile long
+```
+
+### Batch-Verarbeitung
+
+```bash
+# Mehrere Sequenzen aus FASTA-Datei
+amp-rbc-md -f sequences.fasta --n-replica 3 -j 4
+
+# Einzelne Sequenz mit mehreren Replikaten
+amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 5 -j 2
+```
+
+## 📊 Ausgabe
+
+Die Pipeline erzeugt:
+
+- **Strukturen**: PDB-Dateien (AlphaFold2-Vorhersagen)
+- **Topologien**: Martini-3 CG-Topologien
+- **Trajektorien**: GROMACS-Trajektorien (.xtc, .trr)
+- **Analysen**: Automatische Analyse der Membraninteraktionen
+- **Reports**: Zusammenfassende Berichte und Visualisierungen
+
+## 🐛 Troubleshooting
+
+### Häufige Probleme
+
+**GPU-Probleme:**
+```bash
+# CUDA-Version prüfen
+nvidia-smi
+nvcc --version
+
+# PyTorch CUDA-Support testen
+python -c "import torch; print(torch.cuda.is_available())"
+```
+
+**Speicherplatz-Probleme:**
+```bash
+# Speicherplatz prüfen
+df -h
+
+# Nur essentielle Datenbanken herunterladen
+cd external/fastfold
+./scripts/download_pdb_mmcif.sh $HOME/alphafold_dbs/
+```
+
+**Installations-Probleme:**
+```bash
+# Environment neu erstellen
+conda env remove -n amp-rbc-md
+./setup.sh
 ```
 
 ## 📚 Dokumentation
 
-- `docs/TUTORIAL.md` - Schritt-für-Schritt-Anleitung
-- `notebooks/quickstart.ipynb` - Interaktiver Workflow
+- [Tutorial](docs/TUTORIAL.md) - Schritt-für-Schritt Anleitung
+- [API-Dokumentation](docs/API.md) - Code-Referenz
+- [Troubleshooting](TROUBLESHOOTING.md) - Häufige Probleme und Lösungen
 
 ## 🤝 Beitragen
 
 1. Fork das Repository
-2. Erstelle einen Feature-Branch
-3. Committe deine Änderungen
-4. Push zum Branch
-5. Erstelle einen Pull Request
+2. Erstelle einen Feature-Branch (`git checkout -b feature/amazing-feature`)
+3. Committe deine Änderungen (`git commit -m 'Add amazing feature'`)
+4. Push zum Branch (`git push origin feature/amazing-feature`)
+5. Öffne einen Pull Request
 
 ## 📄 Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) für Details.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Datei für Details.
 
 ## 🙏 Danksagungen
 
-- **ColabFold** für AlphaFold2-Implementierung
-- **GROMACS** für MD-Simulationen
-- **Martini** für Coarse-Grained-Kraftfeld
+- **FastFold**: Optimierte AlphaFold2-Implementation
+- **OpenFold**: Referenz-Implementation von AlphaFold2
+- **Martini**: Coarse-Grained Kraftfeld
+- **GROMACS**: Molecular Dynamics Engine
 
-## 📜 Zitieren
+## 📖 Zitierung
 
-Bitte zitieren Sie diese Software wie folgt (Platzhalter-DOI wird bei Release ersetzt):
+Wenn du AMP-RBC-MD in deiner Forschung verwendest, zitiere bitte:
 
+```bibtex
+@software{amp_rbc_md,
+  title={AMP-RBC-MD: Antimicrobial Peptide RBC Membrane Disruption Pipeline},
+  author={Hoimel, Michel},
+  year={2024},
+  url={https://github.com/Hoimel1/amp-rbc-md}
+}
 ```
-Michel Hüller et al. amp-rbc-md: Martini-3 Workflow for Red Blood Cell Peptide Insertion. Version 1.0.0, 2025. DOI:10.5281/zenodo.1234567
-```
-
----

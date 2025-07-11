@@ -4,3 +4,6 @@
 [submodule "external/openfold"]
 	path = external/openfold
 	url = https://github.com/aqlaboratory/openfold.git
+[submodule "external/fastfold"]
+	path = external/fastfold
+	url = https://github.com/hpcaitech/FastFold.git

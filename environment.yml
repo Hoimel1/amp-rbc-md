@@ -4,9 +4,9 @@ channels:
   - bioconda
   - nvidia
 dependencies:
-  # Core
+  # Core Python & Scientific Stack
   - python=3.10
-  - numpy>=1.23,<2.0
+  - numpy>=1.23,<2.0  # Kompatibilität mit FastFold
   - pandas>=1.5,<2.0
   - scipy
   - click
@@ -16,13 +16,16 @@ dependencies:
   - matplotlib
   - mlflow
   - moviepy
+  
   # MD-Stack
   - gromacs=2024          # GPU-fähiges GROMACS
   - vermouth              # martinize2-Dependency
-  # GPU-Stack (torch via pip nach der Env-Aktivierung installieren)
-  # - pytorch=2.3.*=cuda121*
-  # - pytorch-cuda=12.1     # get rid – nutzen wir Pip-Wheels
-  #  - cudnn=8.9  # optional, falls System-Bibliotheken benötigt werden
+  
+  # System Tools
+  - aria2                 # Für Datenbank-Downloads
+  - wget
+  - curl
+  
   # Dev / Tests
   - pytest
   - pytest-cov
@@ -32,11 +35,26 @@ dependencies:
   - isort
   - pip
   - pip:
-      # FastFold / OpenFold nachträglich installieren, wenn Torch vorhanden
-      # z.B.:
-      # pip install torch==2.3.0+cu121 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-      # pip install openfold fastfold
+      # GPU-Stack (PyTorch mit CUDA 12.1)
+      - torch==2.3.0+cu121
+      - torchvision
+      - torchaudio
+      - --index-url https://download.pytorch.org/whl/cu121
+      
+      # FastFold & Dependencies
+      - dm-tree
+      - ml_collections
+      - colossalai
+      - einops
+      
+      # OpenFold
+      - openfold
+      
+      # DeepSpeed
       - deepspeed==0.14.4
+      
+      # Other Dependencies
       - insane               # Python-Package ersatzweise über pip
+      
       # Unser Projekt selber (editable install wenn innerhalb venv)
       - -e . 
