@@ -8,9 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
       - name: Build Docker Image
         run: |
           docker build -t amp-rbc-md:gpu .
-      - name: Run Smoke
+      
+      - name: Run GPU Smoke Test
         run: |
-          docker run --gpus all --rm amp-rbc-md:gpu amp-rbc-md run_sim --seq GLSILGKLL --n-replica 1 --time 100ps --dry-run 
+          # Teste echte Pipeline ohne Dummy-Daten
+          docker run --gpus all --rm amp-rbc-md:gpu amp-rbc-md --seq GLSILGKLL --dry-run
+      
+      - name: Test Installation Verification
+        run: |
+          docker run --gpus all --rm amp-rbc-md:gpu python verify-installation.py --engine fastfold 

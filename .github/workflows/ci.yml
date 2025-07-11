@@ -9,22 +9,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.10'
-      - name: Install dependencies
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gromacs
+      
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install black flake8 mypy pytest pytest-cov rich click numpy biopython mlflow
+          pip install MDAnalysis moviepy matplotlib
+      
       - name: Lint
         run: |
           black --check .
           flake8 .
           mypy src --ignore-missing-imports
-      - name: Tests
+      
+      - name: Run unit tests
         run: |
-          pytest -q --cov=src --cov-report=xml
+          pytest -q --cov=src --cov-report=xml --cov-report=term-missing
+      
+      - name: Test installation
+        run: |
+          python verify-installation.py --engine fastfold
+      
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:

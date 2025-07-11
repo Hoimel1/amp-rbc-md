@@ -21,40 +21,52 @@ dependencies:
   - gromacs=2024          # GPU-fähiges GROMACS
   - vermouth              # martinize2-Dependency
   
+  # Trajektorien-Analyse (echte Implementierungen)
+  - mdtraj                # Für Trajektorien-Analyse
+  - mdanalysis            # Für Pore-Detektion und Thinning-Analyse
+  
   # System Tools
   - aria2                 # Für Datenbank-Downloads
   - wget
   - curl
+  - git
   
-  # Dev / Tests
+  # Development Tools
   - pytest
   - pytest-cov
   - black
   - flake8
   - mypy
-  - isort
+  
+  # PyTorch mit CUDA 12.1 Support
+  - pytorch=2.3.0
+  - pytorch-cuda=12.1
+  - torchvision
+  - torchaudio
+  
+  # Deep Learning & Optimization
+  - deepspeed
+  - accelerate
+  
+  # FastFold/OpenFold Dependencies
+  - dm-tree
+  - ml-collections
+  
+  # Additional Scientific Libraries
+  - biopython
+  - networkx
+  - scikit-learn
+  
+  # Visualization
+  - seaborn
+  - plotly
+  
+  # pip packages (nach conda installieren)
   - pip
   - pip:
-      # GPU-Stack (PyTorch mit CUDA 12.1)
-      - torch==2.3.0+cu121
-      - torchvision
-      - torchaudio
-      - --index-url https://download.pytorch.org/whl/cu121
-      
-      # FastFold & Dependencies
-      - dm-tree
-      - ml_collections
-      - colossalai
-      - einops
-      
-      # OpenFold
-      - openfold
-      
-      # DeepSpeed
-      - deepspeed==0.14.4
-      
-      # Other Dependencies
-      - insane               # Python-Package ersatzweise über pip
-      
-      # Unser Projekt selber (editable install wenn innerhalb venv)
-      - -e . 
+    # FastFold als Git-Submodul installieren
+    - -e external/fastfold
+    # OpenFold als Git-Submodul installieren  
+    - -e external/openfold
+    # Projekt selbst installieren
+    - -e . 
