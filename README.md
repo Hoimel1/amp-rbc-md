@@ -15,60 +15,70 @@ Eine vollständige Pipeline zur Simulation von antimikrobiellen Peptiden und der
 - **Ubuntu 22.04** (empfohlen)
 - **NVIDIA GPU** mit CUDA 12.1 Support
 - **Miniconda/Anaconda**
-- **Mindestens 2 TB freier Speicherplatz** (für alle Datenbanken)
 
 ### Installation
+
+#### Option 1: Lightweight Installation (400GB VM) - Empfohlen ⭐
 
 ```bash
 # 1. Repository klonen (mit Submodulen)
 git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
 cd amp-rbc-md
 
-# 2. Setup-Skript ausführen
+# 2. Lightweight Setup ausführen (< 5 GB)
+./setup-lightweight.sh
+```
+
+**Vorteile:**
+- ✅ **< 5 GB Speicherplatz** (nur AlphaFold-Parameter)
+- ✅ **ColabFold-Batch** mit Remote-MMSeqs2
+- ✅ **Keine lokalen MSA-Datenbanken** nötig
+- ✅ **Sofort einsatzbereit**
+
+#### Option 2: Vollständige Installation (2TB+ VM)
+
+```bash
+# 1. Repository klonen (mit Submodulen)
+git clone --recursive https://github.com/Hoimel1/amp-rbc-md.git
+cd amp-rbc-md
+
+# 2. Vollständiges Setup ausführen
 ./setup.sh
 ```
 
-Das Setup-Skript installiert automatisch:
-- ✅ Conda-Environment mit allen Abhängigkeiten
-- ✅ PyTorch mit CUDA 12.1 Support
-- ✅ FastFold & OpenFold als Git-Submodule
-- ✅ GROMACS 2024 mit GPU-Support
-- ✅ Alle Python-Abhängigkeiten
-
-### Datenbanken herunterladen
-
-```bash
-# Nach der Installation
-cd external/fastfold
-./scripts/download_all_data.sh $HOME/alphafold_dbs/
-```
-
-**Hinweis:** Der Download dauert mehrere Stunden und benötigt ~2 TB Speicherplatz.
+**Vorteile:**
+- ✅ **Beste Vorhersagequalität**
+- ✅ **Alle AlphaFold-Datenbanken**
+- ✅ **Offline-fähig**
 
 ### Erste Simulation
 
 ```bash
-# Dry-Run testen
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
+# Lightweight (ColabFold-Batch)
+amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run
+
+# Vollständig (AlphaFold)
+amp-rbc-md --seq GLSILGKLL --dry-run
 
 # Echte Simulation
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 1 --profile default -j 1
+amp-rbc-md --seq GLSILGKLL --n-replica 1 --profile default -j 1
 ```
 
 ## 📋 Features
 
-- **Strukturvorhersage**: FastFold/OpenFold für AlphaFold2-basierte Strukturvorhersage
+- **Strukturvorhersage**: Multiple Backends (ColabFold, FastFold, ESMFold, AlphaFold)
 - **Coarse-Grained MD**: Martini-3 Kraftfeld für effiziente Simulationen
 - **GPU-Beschleunigung**: Vollständige CUDA-Unterstützung
 - **Batch-Verarbeitung**: Parallele Verarbeitung mehrerer Sequenzen
 - **Automatisierte Pipeline**: Von FASTA zu MD-Trajektorien in einem Schritt
+- **Flexible Installation**: Unterstützt 400GB (Lightweight) und 2TB+ (Vollständig)
 
 ## 🏗️ Architektur
 
 ```
 amp-rbc-md/
 ├── src/amp_rbc_md/          # Hauptcode
-│   ├── fasta_to_pdb.py      # Strukturvorhersage (FastFold/OpenFold)
+│   ├── fasta_to_pdb.py      # Strukturvorhersage (Multi-Backend)
 │   ├── martinize_wrap.py    # CG-Konvertierung (Martini-3)
 │   ├── build_membrane.py    # Membran-Aufbau
 │   ├── gen_mdp.py          # GROMACS-Parameter
@@ -82,13 +92,28 @@ amp-rbc-md/
 └── workflow/               # Snakemake-Workflow (HPC)
 ```
 
+## 📊 Speicherplatz-Anforderungen
+
+| Installation | Speicherplatz | Backend | Qualität | Empfehlung |
+|--------------|---------------|---------|----------|------------|
+| **Lightweight** | < 5 GB | ColabFold-Batch | Sehr gut | ✅ **400GB VM** |
+| **FastFold No-MSA** | < 5 GB | FastFold | Sehr gut | ✅ **400GB VM** |
+| **ESMFold** | < 3 GB | ESMFold | Gut | ✅ **Kurze Peptide** |
+| **Vollständig** | 2TB+ | AlphaFold | Beste | ✅ **2TB+ VM** |
+
 ## 🔧 Installation-Optionen
 
-### Vollständige Installation (Empfohlen)
+### Lightweight Installation (400GB VM) - Empfohlen
+- **Speicherplatz**: < 5 GB
+- **Backend**: ColabFold-Batch mit Remote-MMSeqs2
+- **Qualität**: Sehr gut für Peptide
+- **Vorteil**: Sofort einsatzbereit, keine lokalen DBs
+
+### Vollständige Installation (2TB+ VM)
 - **Speicherplatz**: 2TB+
-- **Qualität**: Beste Strukturvorhersage
-- **Verwendung**: Produktion, Forschung
-- **Datenbanken**: Alle AlphaFold-Datenbanken
+- **Backend**: AlphaFold mit allen MSA-Datenbanken
+- **Qualität**: Beste Vorhersagequalität
+- **Vorteil**: Offline-fähig, maximale Qualität
 
 ### Docker Installation
 ```bash
@@ -103,25 +128,32 @@ snakemake --profile workflow/profile/slurm -j 64
 ## 📖 Dokumentation
 
 - [Installation Guide](docs/INSTALLATION.md) - Detaillierte Installationsanleitung
+- [Optimization Guide](docs/OPTIMIZATION.md) - Speicherplatz-Optimierung & Backends
 - [Tutorial](docs/TUTORIAL.md) - Schritt-für-Schritt Tutorial
 - [API Documentation](docs/API.md) - Code-Dokumentation
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Häufige Probleme
 
 ## 🎯 Beispiele
 
-### Einzel-Sequenz
+### Lightweight (ColabFold-Batch)
 ```bash
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --n-replica 3 --profile default -j 3
+# Einzel-Sequenz
+amp-rbc-md --seq GLSILGKLL --backend colabfold --n-replica 3 --profile default -j 3
+
+# Batch-Verarbeitung
+amp-rbc-md -f examples/batch.fasta --backend colabfold --n-replica 1 --profile default -j 4
+
+# Dry-Run (Test)
+amp-rbc-md --seq GLSILGKLL --backend colabfold --dry-run
 ```
 
-### Batch-Verarbeitung
+### Vollständig (AlphaFold)
 ```bash
+# Einzel-Sequenz
+amp-rbc-md --seq GLSILGKLL --n-replica 3 --profile default -j 3
+
+# Batch-Verarbeitung
 amp-rbc-md -f examples/batch.fasta --n-replica 1 --profile default -j 4
-```
-
-### Dry-Run (Test)
-```bash
-amp-rbc-md --seq AAHHIIGGLFSAGKAIHRLIRRRRR --dry-run
 ```
 
 ## 🤝 Beitragen
@@ -139,6 +171,7 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) Da
 ## 🙏 Danksagungen
 
 - **AlphaFold2**: DeepMind für die revolutionäre Strukturvorhersage
+- **ColabFold**: Sergey Ovchinnikov für die optimierte Implementation
 - **FastFold**: NVIDIA für die GPU-optimierte Implementation
 - **Martini**: Marrink Lab für das Coarse-Grained Kraftfeld
 - **GROMACS**: GROMACS Development Team für die MD-Software
