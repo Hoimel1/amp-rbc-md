@@ -55,8 +55,8 @@ conda install -c conda-forge numpy pandas scipy matplotlib -y
 # CLI-Tools
 conda install -c conda-forge click pyyaml rich tqdm -y
 
-# GROMACS (MD-Simulation)
-conda install -c bioconda gromacs=2024 -y
+# GROMACS (MD-Simulation) - aus conda-forge, nicht bioconda
+conda install -c conda-forge gromacs=2024.5 -y
 
 # PyTorch mit CUDA
 conda install -c nvidia pytorch=2.3.0 pytorch-cuda=12.1 -y
@@ -161,6 +161,12 @@ conda install -c conda-forge pandas -y
 # ... weitere Pakete einzeln
 ```
 
+### Problem: GROMACS nicht in bioconda verfügbar
+**Lösung:** GROMACS ist in conda-forge verfügbar:
+```bash
+conda install -c conda-forge gromacs=2024.5 -y
+```
+
 ### Problem: CUDA nicht erkannt
 **Lösung:** Prüfe NVIDIA-Treiber und PyTorch-Installation:
 ```bash
@@ -171,7 +177,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 ### Problem: GROMACS nicht gefunden
 **Lösung:** Reinstalliere GROMACS:
 ```bash
-conda install -c bioconda gromacs=2024 -y
+conda install -c conda-forge gromacs=2024.5 -y
 ```
 
 ### Problem: ColabFold Import-Fehler

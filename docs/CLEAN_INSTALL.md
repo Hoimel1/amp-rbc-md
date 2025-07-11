@@ -27,7 +27,7 @@ conda create -n amp-rbc-md python=3.10 -y
 conda activate amp-rbc-md
 
 # 3. Basis-Pakete installieren
-conda install -y gromacs=2024 biopython click pyyaml tqdm matplotlib mlflow moviepy rich pytest pytest-cov black flake8 mypy isort
+conda install -y gromacs=2024.5 biopython click pyyaml tqdm matplotlib mlflow moviepy rich pytest pytest-cov black flake8 mypy isort
 
 # 4. Kompatible NumPy/Pandas
 conda install -y numpy=1.24.3 pandas=1.5.3

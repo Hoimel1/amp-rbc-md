@@ -18,7 +18,7 @@ dependencies:
   - moviepy
   
   # MD-Stack
-  - gromacs=2024          # GPU-fähiges GROMACS
+  - gromacs=2024.5          # GPU-fähiges GROMACS
   - vermouth              # martinize2-Dependency
   
   # Trajektorien-Analyse (echte Implementierungen)

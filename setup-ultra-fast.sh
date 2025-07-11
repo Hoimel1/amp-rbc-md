@@ -60,7 +60,7 @@ setup_conda() {
         
         log_info "Installiere essentielle Pakete..."
         conda install -c conda-forge numpy pandas scipy click pyyaml -y
-        conda install -c bioconda gromacs=2024 -y
+        conda install -c conda-forge gromacs=2024.5 -y
         conda install -c nvidia pytorch=2.3.0 pytorch-cuda=12.1 -y
         
         log_success "Essentielle Pakete installiert"

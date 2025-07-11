@@ -19,7 +19,7 @@ dependencies:
   - matplotlib
   
   # MD-Stack (nur GROMACS)
-  - gromacs=2024
+  - gromacs=2024.5
   
   # System Tools
   - wget

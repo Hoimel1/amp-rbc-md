@@ -76,7 +76,7 @@ pip install colabfold==1.5.5 --no-deps
 
 **Lösung**: Über conda installieren
 ```bash
-conda install -c conda-forge gromacs=2024 -y
+conda install -c conda-forge gromacs=2024.5 -y
 ```
 
 ### 7. NVIDIA-Treiber Probleme
