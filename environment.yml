@@ -2,8 +2,9 @@ name: amp-rbc-md
 channels:
   - conda-forge
   - bioconda
+  - nvidia
 dependencies:
-  # Core Python
+  # Core Python & Scientific Stack
   - python=3.10
   - numpy>=1.23,<2.0
   - pandas>=1.5,<2.0
@@ -13,8 +14,10 @@ dependencies:
   - rich
   - tqdm
   - matplotlib
+  - mlflow
+  - moviepy
   
-  # MD-Stack (nur das Nötigste)
+  # MD-Stack
   - gromacs=2024.5
   - vermouth
   
@@ -22,16 +25,45 @@ dependencies:
   - mdtraj
   - mdanalysis
   
-  # PyTorch (für FastFold)
+  # System Tools
+  - aria2
+  - wget
+  - curl
+  - git
+  
+  # Development Tools
+  - pytest
+  - pytest-cov
+  - black
+  - flake8
+  - mypy
+  
+  # PyTorch (angepasst für CUDA 11.5)
   - pytorch=2.1.0
   - pytorch-cuda=11.8
+  - torchvision
+  - torchaudio
   
-  # FastFold Dependencies
+  # Deep Learning & Optimization
+  - deepspeed
+  - accelerate
+  
+  # FastFold/OpenFold Dependencies
   - dm-tree
   - ml-collections
+  
+  # Additional Scientific Libraries
+  - biopython
+  - networkx
+  - scikit-learn
+  
+  # Visualization
+  - seaborn
+  - plotly
   
   # pip packages
   - pip
   - pip:
     - -e external/fastfold
+    - -e external/openfold
     - -e . 
