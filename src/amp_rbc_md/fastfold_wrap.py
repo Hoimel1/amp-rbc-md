@@ -49,11 +49,11 @@ def _find_fastfold_script() -> list[str]:
     """
 
     # Prüfe, ob lokales FastFold inference.py existiert
-    fastfold_repo = Path(__file__).parent.parent.parent / "fastfold_repo" / "inference.py"
+    fastfold_repo = Path(__file__).parent.parent.parent / "external" / "fastfold" / "inference.py"
     if fastfold_repo.exists():
         return ["python", str(fastfold_repo)]
 
-    # Prüfe, ob fastfold als Python-Modul importierbar ist
+    # Prüfe, ob fastfold als Python-Modul importierbar ist (ohne CUDA-Erweiterungen)
     try:
         import importlib
         importlib.import_module("fastfold")
