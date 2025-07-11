@@ -62,7 +62,7 @@ conda install -c conda-forge gromacs=2024.5 -y
 conda install -c conda-forge pytorch=2.5.1 -y
 
 # System-Tools
-conda install -c conda-forge wget curl git -y
+conda install -c conda-forge wget curl git aria2 -y
 ```
 
 ## 📦 Schritt 4: Submodule initialisieren
@@ -73,6 +73,19 @@ git submodule update --init --recursive
 
 # Prüfe Submodule-Status
 git submodule status
+```
+
+## 🗄️ Schritt 4.5: FastFold-Datenbanken herunterladen
+
+```bash
+# Wechsle zu FastFold-Verzeichnis
+cd external/fastfold
+
+# Lade Datenbanken herunter (kann lange dauern)
+./scripts/download_all_data.sh ~/alphafold_dbs/
+
+# Zurück zum Hauptverzeichnis
+cd ../..
 ```
 
 ## 🧬 Schritt 5: ColabFold installieren
@@ -203,6 +216,22 @@ pip install colabfold
 **Lösung:** ColabFold mit AlphaFold-Unterstützung installieren:
 ```bash
 pip install "colabfold[alphafold]"
+```
+
+### Problem: FastFold-Datenbanken nicht gefunden
+**Lösung:** FastFold-Datenbanken herunterladen:
+```bash
+cd external/fastfold
+./scripts/download_all_data.sh ~/alphafold_dbs/
+cd ../..
+```
+
+### Problem: aria2c nicht gefunden
+**Lösung:** aria2 installieren:
+```bash
+conda install -c conda-forge aria2 -y
+# oder
+sudo apt install aria2
 ```
 
 ## 📊 Speicherplatz-Übersicht
