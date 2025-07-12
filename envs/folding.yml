@@ -16,4 +16,4 @@ dependencies:
   - pip:
     - einops
     - ray
-    - git+https://github.com/hpcaitech/FastFold@0.1.0#egg=fastfold --no-build-isolation --config-settings build_ext.define="CUDA_EXT=0" 
+    - git+https://github.com/hpcaitech/FastFold@0.1.0#egg=fastfold 
