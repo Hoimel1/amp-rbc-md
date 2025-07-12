@@ -15,5 +15,4 @@ dependencies:
   - pip
   - pip:
     - einops
-    - ray
-    - git+https://github.com/hpcaitech/FastFold@0.1.0#egg=fastfold 
+    - ray 
